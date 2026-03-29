@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transformation Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080a0f;
+  --bg2:#0d1018;
+  --card:#101420;
+  --card2:#161c2a;
+  --card3:#1c2338;
+  --muted:#6b7a96;
+  --muted2:#8a9ab8;
+  --text:#dde4f0;
+  --text2:#f0f4ff;
+
+  --primary:#6c8eff;
+  --primary-dim:#1a2550;
+  --primary-glow:rgba(108,142,255,0.15);
+
+  --green:#34d96f;
+  --green-dim:#0d2e1c;
+  --green-glow:rgba(52,217,111,0.12);
+  --gt:#86efac;
+
+  --yellow:#f5c542;
+  --yellow-dim:#2a2008;
+  --yt:#fcd34d;
+
+  --blue:#4da6ff;
+  --blue-dim:#0d2040;
+
+  --red:#ff6b8a;
+  --red-dim:#280d18;
+
+  --teal:#2ffbd4;
+  --teal-dim:#0a2825;
+
+  --pink:#ff6fc8;
+  --pink-dim:#281025;
+
+  --orange:#ff8c42;
+  --orange-dim:#291508;
+
+  --border:#1e2538;
+  --border2:#2a334d;
+  --border3:#3a4666;
+
+  --r:14px;
+  --rl:18px;
+  --rs:8px;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── BACKGROUND MESH ── */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 600px 400px at 10% 20%, rgba(108,142,255,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 350px at 85% 70%, rgba(52,217,111,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 300px at 50% 95%, rgba(255,107,138,0.04) 0%, transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ── LAYOUT ── */
+.shell{max-width:980px;margin:0 auto;padding:1.5rem 1rem 4rem;position:relative;z-index:1}
+
+/* ── HEADER ── */
+.hdr{
+  padding:2rem 0 1.8rem;
+  border-bottom:1px solid var(--border);
+  margin-bottom:1.6rem;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:1rem;
+}
+.hdr-left{}
+.hdr-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--primary);background:var(--primary-dim);border:1px solid rgba(108,142,255,.3);
+  padding:4px 12px;border-radius:999px;margin-bottom:.7rem;
+}
+.hdr-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--primary);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.hdr-title{
+  font-family:'Syne',sans-serif;font-size:26px;font-weight:800;
+  color:var(--text2);letter-spacing:-.5px;line-height:1.1;margin-bottom:.4rem;
+}
+.hdr-title span{
+  background:linear-gradient(135deg,var(--primary),var(--teal));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hdr-sub{font-size:12.5px;color:var(--muted);line-height:1.6}
+.hdr-right{
+  display:flex;flex-direction:column;align-items:flex-end;gap:.5rem;
+}
+.hdr-stat{text-align:right}
+.hdr-stat-v{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--red);letter-spacing:-1px}
+.hdr-stat-l{font-size:11px;color:var(--muted)}
+.hdr-stat2{text-align:right}
+.hdr-stat2-v{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--green)}
+.hdr-stat2-l{font-size:11px;color:var(--muted)}
+
+/* ── STATS ROW ── */
+.stats-row{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:8px;
+  margin-bottom:1.5rem;
+}
+.stat{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:12px 14px;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+}
+.stat::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--stat-color,var(--primary)),transparent);
+  opacity:.6;
+}
+.stat:hover{border-color:var(--border2);transform:translateY(-1px)}
+.stat-l{font-size:10.5px;color:var(--muted);margin-bottom:4px;font-weight:500}
+.stat-v{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.stat-v.purple{color:var(--primary);--stat-color:var(--primary)}
+.stat-v.red{color:var(--red);--stat-color:var(--red)}
+.stat-v.green{color:var(--green);--stat-color:var(--green)}
+.stat-v.yellow{color:var(--yellow);--stat-color:var(--yellow)}
+.stat-v.blue{color:var(--blue);--stat-color:var(--blue)}
+.stat-v.teal{color:var(--teal);--stat-color:var(--teal)}
+
+/* ── PLAN SWITCHER ── */
+.plan-switch{
+  display:flex;gap:8px;margin-bottom:1.4rem;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:5px;
+}
+.plan-btn{
+  flex:1;padding:10px 14px;border-radius:10px;border:none;
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.02em;
+  cursor:pointer;transition:all .22s;color:var(--muted);background:transparent;
+}
+.plan-btn.active{background:var(--primary);color:#fff;box-shadow:0 4px 20px rgba(108,142,255,.4)}
+.plan-btn:not(.active):hover{color:var(--text);background:var(--card2)}
+
+/* ── PLAN PANELS ── */
+.plan-panel{display:none}
+.plan-panel.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TABS ── */
+.tabs{
+  display:flex;gap:6px;overflow-x:auto;padding:6px 0 8px;
+  margin-bottom:1.2rem;
+  position:sticky;top:0;z-index:20;
+  background:linear-gradient(to bottom, var(--bg) 85%, transparent);
+  mask-image:linear-gradient(to right, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
+  -webkit-mask-image:linear-gradient(to right, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
+}
+.tabs::-webkit-scrollbar{height:0}
+.tab{
+  padding:8px 16px;border-radius:999px;border:1px solid var(--border);
+  font-size:12.5px;cursor:pointer;background:transparent;
+  color:var(--muted);transition:all .18s;white-space:nowrap;
+  font-family:'DM Sans',sans-serif;font-weight:500;
+}
+.tab:hover{background:var(--card2);color:var(--text);border-color:var(--border2)}
+.tab.active{background:var(--primary-dim);color:var(--primary);border-color:rgba(108,142,255,.5);font-weight:600}
+
+/* ── DAY PANELS ── */
+.dp{display:none}
+.dp.active{display:block;animation:fadeIn .2s ease}
+
+/* ── SECTION HEADER ── */
+.sec{
+  font-family:'Syne',sans-serif;font-size:10px;font-weight:700;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.1em;
+  margin:1.4rem 0 .6rem;
+  display:flex;align-items:center;gap:10px;
+}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── BANNERS ── */
+.ban{
+  border-radius:var(--r);padding:13px 16px;font-size:13px;
+  line-height:1.7;margin-bottom:.9rem;border:1px solid;
+}
+.b-i{background:rgba(13,32,64,.7);border-color:#1e3a6a;color:#93c5fd}
+.b-g{background:rgba(13,46,28,.7);border-color:#1a5232;color:var(--gt)}
+.b-w{background:rgba(42,32,8,.7);border-color:#4a3510;color:var(--yt)}
+.b-p{background:rgba(26,30,63,.7);border-color:#3340a0;color:#c4bfff}
+.b-r{background:rgba(40,13,24,.7);border-color:#7a1830;color:#fda4af}
+.b-o{background:rgba(41,21,8,.7);border-color:#7a3510;color:#fed7aa}
+.b-pk{background:rgba(40,16,37,.7);border-color:#7a2055;color:#f9a8d4}
+
+/* ── CARDS GRID ── */
+.ig{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:.5rem}
+.ic{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 14px;transition:all .18s;
+}
+.ic:hover{border-color:var(--border2);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.il{font-size:10.5px;color:var(--muted);margin-bottom:4px;font-weight:500}
+.iv{font-size:13px;font-weight:500;color:var(--text);line-height:1.5}
+.prog-bar-wrap{background:var(--border);border-radius:99px;height:5px;margin-top:8px;overflow:hidden}
+.prog-bar{height:5px;border-radius:99px;transition:width .5s ease}
+
+/* ── EXERCISE CARDS ── */
+.ex-grid{display:flex;flex-direction:column;gap:8px}
+.ex{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;transition:all .2s;
+}
+.ex:hover{border-color:var(--border2);box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.ex-head{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 15px;cursor:pointer;
+  user-select:none;
+}
+.ex-num{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--primary-dim);color:var(--primary);
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.ex-icon{
+  width:32px;height:32px;border-radius:var(--rs);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.ex-name{font-size:13.5px;font-weight:600;color:var(--text2);flex:1}
+.ex-badge{display:flex;gap:5px;flex-wrap:wrap}
+.badge{font-size:10.5px;font-weight:600;padding:2px 9px;border-radius:999px;border:1px solid}
+.bd-sets{background:rgba(13,46,28,.8);color:var(--gt);border-color:#1a5232}
+.bd-rpe{background:rgba(42,32,8,.8);color:var(--yt);border-color:#4a3510}
+.bd-rest{background:var(--blue-dim);color:#93c5fd;border-color:#1e3a6a}
+.bd-focus{background:var(--primary-dim);color:var(--primary);border-color:rgba(108,142,255,.4)}
+.bd-time{background:var(--blue-dim);color:#93c5fd;border-color:#1e3a6a}
+.bd-freq{background:rgba(13,46,28,.8);color:var(--gt);border-color:#1a5232}
+.bd-diff{background:rgba(42,32,8,.8);color:var(--yt);border-color:#4a3510}
+.bd-impact{background:var(--primary-dim);color:var(--primary);border-color:rgba(108,142,255,.4)}
+.ex-toggle{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--card2);border:1px solid var(--border);
+  color:var(--muted);font-size:12px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .2s;
+}
+.ex.open .ex-toggle{background:var(--primary-dim);color:var(--primary);border-color:rgba(108,142,255,.4);transform:rotate(180deg)}
+.ex-body{display:none;padding:0 15px 14px;border-top:1px solid var(--border)}
+.ex-body.open{display:block;animation:fadeIn .15s ease}
+.ex-detail{font-size:12.5px;color:var(--muted2);line-height:1.72;margin-top:11px}
+.ex-detail strong{color:var(--text)}
+.ex-tip{
+  background:rgba(42,32,8,.5);border-radius:var(--rs);
+  padding:10px 12px;margin-top:9px;font-size:12px;color:var(--yt);
+  line-height:1.6;border-left:2px solid var(--yellow);
+}
+.ex-warn{
+  background:rgba(40,13,24,.5);border-radius:var(--rs);
+  padding:10px 12px;margin-top:9px;font-size:12px;color:#fda4af;
+  line-height:1.6;border-left:2px solid var(--red);
+}
+
+/* ── PHASE BLOCKS ── */
+.phase{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);margin-bottom:8px;overflow:hidden;
+}
+.phase-hdr{
+  padding:12px 15px;display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid var(--border);
+}
+.phase-icon{
+  width:30px;height:30px;border-radius:var(--rs);
+  display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;
+}
+.phase-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text2)}
+.phase-sub{font-size:12px;color:var(--muted);margin-left:auto}
+.phase-body{padding:12px 15px}
+.step-row{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:8px 0;border-bottom:1px solid var(--border);
+}
+.step-row:last-child{border-bottom:none}
+.step-num{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--muted);min-width:22px;padding-top:2px}
+.step-name{font-size:13px;font-weight:600;color:var(--text);flex:1}
+.step-detail{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.55}
+.step-dur{
+  font-size:11px;color:#93c5fd;background:var(--blue-dim);
+  padding:2px 9px;border-radius:999px;border:1px solid #1e3a6a;
+  white-space:nowrap;flex-shrink:0;margin-top:1px;
+}
+
+/* ── TIMELINE ── */
+.tl{display:flex;flex-direction:column;gap:7px}
+.bl{
+  display:flex;gap:12px;padding:13px 15px;
+  border-radius:var(--r);background:var(--card);border:1px solid var(--border);
+  transition:all .2s;
+}
+.bl:hover{transform:translateY(-1px);border-color:var(--border2);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.dot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.tm{font-size:11.5px;color:var(--muted);min-width:92px;padding-top:2px;flex-shrink:0}
+.bc{flex:1}
+.bn{font-size:13.5px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.bsub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.55}
+.bsl .dot{background:var(--primary)}.bsl{border-left:2px solid rgba(108,142,255,.5)}
+.bmr .dot{background:var(--green)}.bmr{border-left:2px solid rgba(52,217,111,.4)}
+.bgm .dot{background:var(--red)}.bgm{border-left:2px solid rgba(255,107,138,.4)}
+.bfd .dot{background:var(--yellow)}.bfd{border-left:2px solid rgba(245,197,66,.4)}
+.bst .dot{background:#9ca3af}.bst{border-left:2px solid #414650}
+.bfr .dot{background:#464e5f}
+
+/* ── TAGS ── */
+.tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid}
+.t-w{background:rgba(13,46,28,.8);color:var(--gt);border-color:#1a5232}
+.t-c{background:var(--teal-dim);color:var(--teal);border-color:#1a5845}
+.t-g{background:rgba(40,13,24,.8);color:#fda4af;border-color:#7a1830}
+.t-r{background:var(--primary-dim);color:var(--primary);border-color:rgba(108,142,255,.4)}
+.t-m{background:rgba(42,32,8,.8);color:var(--yt);border-color:#4a3510}
+.t-f{background:var(--blue-dim);color:#93c5fd;border-color:#1e3a6a}
+.t-skin{background:rgba(40,16,37,.8);color:#f9a8d4;border-color:#7a2055}
+.t-face{background:var(--primary-dim);color:var(--primary);border-color:rgba(108,142,255,.4)}
+.t-habit{background:rgba(13,46,28,.8);color:var(--gt);border-color:#1a5232}
+.t-warn{background:rgba(40,13,24,.8);color:#fda4af;border-color:#7a1830}
+
+/* ── WEEK GRID ── */
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-bottom:1rem}
+.wday-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 6px;text-align:center;transition:all .2s;cursor:default;
+}
+.wday-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.wday-name{font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;letter-spacing:.05em;font-family:'Syne',sans-serif}
+.wday-tag{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;padding:3px 0}
+.wday-tag.push{color:var(--red)}
+.wday-tag.pull{color:var(--blue)}
+.wday-tag.legs{color:var(--green)}
+.wday-tag.rest{color:var(--muted)}
+.wday-time{font-size:10px;color:var(--muted);margin-top:4px}
+
+/* ── MEAL CARDS ── */
+.meal-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden}
+.meal-hdr{padding:12px 15px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px}
+.meal-time{font-size:11.5px;font-weight:600;color:var(--primary);font-family:'Syne',sans-serif}
+.meal-name{font-size:14px;font-weight:700;color:var(--text2);font-family:'Syne',sans-serif}
+.meal-p{font-size:11px;color:var(--gt);background:var(--green-dim);padding:3px 10px;border-radius:999px;border:1px solid rgba(52,217,111,.3);font-weight:600}
+.meal-body{padding:12px 15px}
+.meal-opt{font-size:12.5px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border);line-height:1.6}
+.meal-opt:last-child{border-bottom:none}
+.meal-opt strong{color:var(--text)}
+
+/* ── PRODUCT CARDS ── */
+.prod{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 15px;margin-bottom:8px;transition:all .18s}
+.prod:hover{border-color:var(--border2)}
+.prod-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;flex-wrap:wrap;gap:6px}
+.prod-name{font-size:14px;font-weight:700;color:var(--text2);font-family:'Syne',sans-serif}
+.prod-price{font-size:11px;background:var(--green-dim);color:var(--gt);padding:3px 10px;border-radius:999px;border:1px solid rgba(52,217,111,.3);font-weight:600}
+.prod-use{font-size:11px;background:var(--blue-dim);color:#93c5fd;padding:3px 10px;border-radius:999px;border:1px solid #1e3a6a;font-weight:600}
+.prod-desc{font-size:12.5px;color:var(--muted);line-height:1.65}
+.prod-desc strong{color:var(--text)}
+
+/* ── PROGRESS STEPS ── */
+.prog-steps{display:flex;flex-direction:column;gap:0}
+.ps{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)}
+.ps:last-child{border-bottom:none}
+.ps-line{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.ps-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;box-shadow:0 0 10px currentColor}
+.ps-track{width:2px;flex:1;min-height:24px;margin-top:6px}
+.ps-body{flex:1;padding-top:1px}
+.ps-week{font-family:'Syne',sans-serif;font-size:10px;font-weight:800;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em}
+.ps-title{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:4px;font-family:'Syne',sans-serif}
+.ps-desc{font-size:12.5px;color:var(--muted);line-height:1.65}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:var(--border3)}
+
+/* ── MOBILE ── */
+@media(max-width:600px){
+  .hdr{flex-direction:column}
+  .hdr-right{align-items:flex-start}
+  .week-grid{grid-template-columns:repeat(7,1fr);gap:4px}
+  .wday-card{padding:8px 3px}
+  .wday-name{font-size:9px}
+  .wday-tag{font-size:10px}
+  .wday-time{display:none}
+  .plan-btn{font-size:11px;padding:8px 10px}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ══ HEADER ══ -->
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-badge">⚡ Active Plan</div>
+    <div class="hdr-title">Your <span>Transformation</span> Dashboard</div>
+    <div class="hdr-sub">184 cm · 55 kg · Post-illness bulk · Veg + egg · Joint-safe · Facial symmetry · Natural looksmaxxing</div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-stat"><div class="hdr-stat-v">16.2</div><div class="hdr-stat-l">Current BMI — Underweight</div></div>
+    <div class="hdr-stat2"><div class="hdr-stat2-v">72–75 kg</div><div class="hdr-stat2-l">Target Weight</div></div>
+  </div>
+</div>
+
+<!-- ══ STATS ══ -->
+<div class="stats-row">
+  <div class="stat"><div class="stat-l">Height</div><div class="stat-v purple">184 cm</div></div>
+  <div class="stat"><div class="stat-l">Weight</div><div class="stat-v red">55 kg</div></div>
+  <div class="stat"><div class="stat-l">Target</div><div class="stat-v green">72–75 kg</div></div>
+  <div class="stat"><div class="stat-l">Daily calories</div><div class="stat-v yellow">2,800–3,200</div></div>
+  <div class="stat"><div class="stat-l">Protein/day</div><div class="stat-v green">110–120g</div></div>
+  <div class="stat"><div class="stat-l">Gym days</div><div class="stat-v purple">4 days</div></div>
+  <div class="stat"><div class="stat-l">Phase</div><div class="stat-v yellow">Phase 1</div></div>
+  <div class="stat"><div class="stat-l">Timeline</div><div class="stat-v teal">10–12 mo</div></div>
+</div>
+
+<!-- ══ PLAN SWITCHER ══ -->
+<div class="plan-switch">
+  <button class="plan-btn active" onclick="switchPlan('workout',this)">💪 Workout &amp; Bulk</button>
+  <button class="plan-btn" onclick="switchPlan('looks',this)">✨ Looksmaxxing</button>
+</div>
+
+<!-- ════════════════════════════════ -->
+<!-- ══   WORKOUT PLAN PANEL       ══ -->
+<!-- ════════════════════════════════ -->
+<div class="plan-panel active" id="plan-workout">
+  <div class="tabs" id="tabs-workout">
+    <div class="tab active" onclick="ST('workout','overview',this)">Overview</div>
+    <div class="tab" onclick="ST('workout','mon',this)">Mon — Push</div>
+    <div class="tab" onclick="ST('workout','tue',this)">Tue — Pull</div>
+    <div class="tab" onclick="ST('workout','wed',this)">Wed — Rest</div>
+    <div class="tab" onclick="ST('workout','thu',this)">Thu — Legs</div>
+    <div class="tab" onclick="ST('workout','fri',this)">Fri — Push+</div>
+    <div class="tab" onclick="ST('workout','sat',this)">Sat — Rest</div>
+    <div class="tab" onclick="ST('workout','sun',this)">Sun — Free</div>
+    <div class="tab" onclick="ST('workout','nutrition',this)">Nutrition</div>
+    <div class="tab" onclick="ST('workout','recovery',this)">Recovery</div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="dp active" id="workout-overview">
+    <div class="ban b-r">184 cm at 55 kg is BMI 16.2 — significantly underweight. Your joints clicking is likely from low muscle mass + post-illness mineral depletion. Bulking is not optional here — it's medically important. Target: 72–75 kg over 10–12 months.</div>
+    <div class="ban b-w">Phase 1 (Weeks 1–4): Very light weights, joint prep, form learning, calorie surplus. Do NOT push intensity. Phase 2 (Weeks 5–8): Add load, 3 working sets. Phase 3 (Week 9+): Progressive overload begins properly.</div>
+
+    <div class="sec">Weekly split</div>
+    <div class="week-grid">
+      <div class="wday-card"><div class="wday-name">MON</div><div class="wday-tag push">Push</div><div class="wday-time">5:30 pm</div></div>
+      <div class="wday-card"><div class="wday-name">TUE</div><div class="wday-tag pull">Pull</div><div class="wday-time">6:15 pm</div></div>
+      <div class="wday-card"><div class="wday-name">WED</div><div class="wday-tag rest">Rest</div><div class="wday-time">Active</div></div>
+      <div class="wday-card"><div class="wday-name">THU</div><div class="wday-tag legs">Legs</div><div class="wday-time">6:15 pm</div></div>
+      <div class="wday-card"><div class="wday-name">FRI</div><div class="wday-tag push">Push+</div><div class="wday-time">6:15 pm</div></div>
+      <div class="wday-card"><div class="wday-name">SAT</div><div class="wday-tag rest">Rest</div><div class="wday-time">Walk</div></div>
+      <div class="wday-card"><div class="wday-name">SUN</div><div class="wday-tag rest">Free</div><div class="wday-time">You time</div></div>
+    </div>
+
+    <div class="sec">Phase progression</div>
+    <div class="ig">
+      <div class="ic"><div class="il">Phase 1 — Weeks 1–4</div><div class="iv">Rebuild · Joint conditioning · 2 sets · 50% effort · form only</div><div class="prog-bar-wrap"><div class="prog-bar" style="width:33%;background:var(--red)"></div></div></div>
+      <div class="ic"><div class="il">Phase 2 — Weeks 5–8</div><div class="iv">Load up · 3 sets · progressive overload starts · add 1–2 kg/week</div><div class="prog-bar-wrap"><div class="prog-bar" style="width:66%;background:var(--yellow)"></div></div></div>
+      <div class="ic"><div class="il">Phase 3 — Week 9+</div><div class="iv">Full intensity · 4 sets · compound focus · bulk in full swing</div><div class="prog-bar-wrap"><div class="prog-bar" style="width:100%;background:var(--green)"></div></div></div>
+    </div>
+
+    <div class="sec">Daily time structure (weekdays)</div>
+    <div class="tl">
+      <div class="bl bmr"><div class="dot"></div><div class="tm">7:00–9:00 am</div><div class="bc"><div class="bn">Mess breakfast window</div><div class="bsub">Aim for 7:15 am · biggest breakfast of the day · 30–35g protein target</div></div></div>
+      <div class="bl bst"><div class="dot"></div><div class="tm">8:00 am – 12:30</div><div class="bc"><div class="bn">Classes</div><div class="bsub">Carry peanuts/chikki · snack between slots if gap exists</div></div></div>
+      <div class="bl bfd"><div class="dot"></div><div class="tm">12:00–2:00 pm</div><div class="bc"><div class="bn">Mess lunch window</div><div class="bsub">Eat by 12:30 · 35–40g protein target · eat 2 full plates</div></div></div>
+      <div class="bl bst"><div class="dot"></div><div class="tm">2:00–5:30 pm</div><div class="bc"><div class="bn">Labs / Study / Free time</div><div class="bsub">Mid-afternoon snack at 4:30 · pre-gym fuel</div></div></div>
+      <div class="bl bfr"><div class="dot"></div><div class="tm">5:00–5:15 pm</div><div class="bc"><div class="bn">You time — buffer before gym</div><div class="bsub">Change clothes · music · 10 min walk to gym · mental switch</div></div></div>
+      <div class="bl bgm"><div class="dot"></div><div class="tm">5:30–6:45 pm</div><div class="bc"><div class="bn">Gym session</div><div class="bsub">Warmup 10 min + workout 45–50 min + cooldown 8 min · total ~65 min</div></div></div>
+      <div class="bl bfr"><div class="dot"></div><div class="tm">6:45–7:00 pm</div><div class="bc"><div class="bn">You time — decompress</div><div class="bsub">Shower · freshen up · 15 min break before dinner · don't rush</div></div></div>
+      <div class="bl bfd"><div class="dot"></div><div class="tm">7:00–9:00 pm</div><div class="bc"><div class="bn">Mess dinner window</div><div class="bsub">Eat by 7:30 pm · 35–40g protein target · most important meal on gym days</div></div></div>
+      <div class="bl bfr"><div class="dot"></div><div class="tm">8:00–10:00 pm</div><div class="bc"><div class="bn">You time — fully off</div><div class="bsub">Phone · friends · entertainment · hobbies · this is non-negotiable rest</div></div></div>
+      <div class="bl bst"><div class="dot"></div><div class="tm">9:30–10:30 pm</div><div class="bc"><div class="bn">Study (light) + bedtime snack</div><div class="bsub">30–45 min review only · nuts + peanut butter before bed</div></div></div>
+      <div class="bl bsl"><div class="dot"></div><div class="tm">10:30–11:00 pm</div><div class="bc"><div class="bn">Sleep target</div><div class="bsub">7.5–8 hrs minimum · sleep is when 70% of muscle growth happens · non-negotiable</div></div></div>
+    </div>
+
+    <div class="sec">Joint care — critical for you</div>
+    <div class="ban b-o">Your joints clicking is a signal — not to stop training, but to condition them properly first. Follow every warmup exactly. Avoid locking out joints under load. Never train through sharp pain (dull muscle burn = fine, sharp joint pain = stop).</div>
+    <div class="ig">
+      <div class="ic"><div class="il">Avoid weeks 1–4</div><div class="iv">Heavy barbell squats, deadlifts, behind-neck press, dips with weight</div></div>
+      <div class="ic"><div class="il">Always do</div><div class="iv">Joint circles before every session · band pull-aparts · bodyweight primer</div></div>
+      <div class="ic"><div class="il">Supplement consider</div><div class="iv">Fish oil or flaxseed oil (₹200/month) · helps joint lubrication significantly</div></div>
+      <div class="ic"><div class="il">Weight jumps</div><div class="iv">Max 1–2 kg increase per week · never jump more than 2.5 kg at once</div></div>
+    </div>
+  </div>
+
+  <!-- MONDAY -->
+  <div class="dp" id="workout-mon">
+    <div class="ban b-i">Monday · Push day · Chest, Shoulders, Triceps · 5:30 pm · ~65 min total</div>
+    <div class="ban b-w">You have 5 theory slots this morning. Eat a proper lunch by 12:30. Rest 1:15–1:45 pm. Snack at 4:45 pm before gym.</div>
+    <div class="sec">Warmup — 10 min <span class="tag t-w">Do not skip</span></div>
+    <div class="phase"><div class="phase-hdr"><div class="phase-icon" style="background:var(--green-dim)">🔥</div><div class="phase-title">General warmup</div><div class="phase-sub">3 min</div></div><div class="phase-body"><div class="step-row"><div class="step-num">1</div><div style="flex:1"><div class="step-name">Arm circles — forward + backward</div><div class="step-detail">Big slow circles · 10 forward, 10 back · loosens shoulder joint</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">2</div><div style="flex:1"><div class="step-name">Wrist rotations</div><div class="step-detail">Both directions · 10 each way · critical for bench + press</div></div><div class="step-dur">30 sec</div></div><div class="step-row"><div class="step-num">3</div><div style="flex:1"><div class="step-name">Neck rolls + shoulder shrugs</div><div class="step-detail">Slow gentle rolls · 5 each direction · don't force range</div></div><div class="step-dur">45 sec</div></div><div class="step-row"><div class="step-num">4</div><div style="flex:1"><div class="step-name">Chest opener stretch</div><div class="step-detail">Hands behind back, squeeze shoulder blades, open chest · hold 5 sec × 5</div></div><div class="step-dur">45 sec</div></div></div></div>
+    <div class="phase"><div class="phase-hdr"><div class="phase-icon" style="background:var(--primary-dim)">⚡</div><div class="phase-title">Activation warmup</div><div class="phase-sub">7 min</div></div><div class="phase-body"><div class="step-row"><div class="step-num">5</div><div style="flex:1"><div class="step-name">Push-ups — slow and controlled</div><div class="step-detail">2 sets × 8 reps · 3 sec down, 1 sec up · activates chest + triceps + stabilisers</div></div><div class="step-dur">2 min</div></div><div class="step-row"><div class="step-num">6</div><div style="flex:1"><div class="step-name">Empty bar / very light dumbbell press</div><div class="step-detail">1 set × 12 reps with just the bar or lightest dumbbell · groove the movement pattern</div></div><div class="step-dur">2 min</div></div><div class="step-row"><div class="step-num">7</div><div style="flex:1"><div class="step-name">Lateral raise — no weight / water bottle</div><div class="step-detail">2 × 12 · slow controlled · warms up rotator cuff before shoulder work</div></div><div class="step-dur">2 min</div></div><div class="step-row"><div class="step-num">8</div><div style="flex:1"><div class="step-name">Tricep dips — bodyweight only</div><div class="step-detail">1 × 10 on bench · elbows stay close · shoulder joint warm check</div></div><div class="step-dur">1 min</div></div></div></div>
+    <div class="sec">Main workout — 45–50 min</div>
+    <div class="ban b-p">Week 1–4: Do 2 sets only at 50% effort. Week 5+: 3 sets. Week 9+: 4 sets. RPE = Rate of Perceived Exertion out of 10.</div>
+    <div class="ex-grid">
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">1</div><div class="ex-name">Flat dumbbell bench press</div><div class="ex-badge"><span class="badge bd-sets">3×10–12</span><span class="badge bd-rpe">RPE 6–7</span><span class="badge bd-rest">90 sec</span><span class="badge bd-focus">Chest</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Primary chest builder. Lie flat, dumbbells at chest level, elbows at 45° (not flared wide — protects your shoulder joints). Press up, don't lock out elbows fully at top. Control the descent — 2 sec down.<br><br><strong>Week 1–2 starting weight:</strong> 5–6 kg each dumbbell · Week 5+: add 1 kg when last set feels easy.</div><div class="ex-tip">Tip: If your lower back arches off bench, plant feet flat on floor. Keep core tight. This is your joint protection — don't rush the weight up.</div><div class="ex-warn">Avoid: Flaring elbows 90° outward — massive shoulder impingement risk at your current joint state.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">2</div><div class="ex-name">Incline dumbbell press</div><div class="ex-badge"><span class="badge bd-sets">3×10</span><span class="badge bd-rpe">RPE 6</span><span class="badge bd-rest">90 sec</span><span class="badge bd-focus">Upper chest</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Set bench to 30–45°. Same technique as flat press but targets upper chest — crucial for a full, proportional chest at your height. Start 1–2 kg lighter than flat press.<br><br><strong>Why important for you:</strong> At 184 cm, upper chest development gives the appearance of filling out your frame faster.</div><div class="ex-tip">Tip: Don't go past 45° incline — turns it into a shoulder exercise and increases impingement risk.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">3</div><div class="ex-name">Seated dumbbell shoulder press</div><div class="ex-badge"><span class="badge bd-sets">3×10–12</span><span class="badge bd-rpe">RPE 6</span><span class="badge bd-rest">90 sec</span><span class="badge bd-focus">Shoulders</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Sit upright on bench with back support. Start with dumbbells at ear level, press up and slightly in — don't crash them together at top. <strong>Do NOT do behind-neck press</strong> — very bad for clicky joints.<br><br><strong>Week 1–2 starting weight:</strong> 4–5 kg each.</div><div class="ex-tip">Tip: Keep core braced throughout. Don't lean back excessively — if you are, the weight is too heavy.</div><div class="ex-warn">Skip behind-neck press completely — dangerous for your current joint state.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">4</div><div class="ex-name">Dumbbell lateral raises</div><div class="ex-badge"><span class="badge bd-sets">3×12–15</span><span class="badge bd-rpe">RPE 5–6</span><span class="badge bd-rest">60 sec</span><span class="badge bd-focus">Side delts</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Stand upright, slight bend in elbows, raise arms to shoulder height — no higher. Tilt dumbbells slightly forward (like pouring water). Control the descent.<br><br>This exercise is what makes shoulders look wide — especially important for filling out your 184 cm frame. Even tiny weights work here.</div><div class="ex-tip">Tip: 3 kg is perfectly fine to start. Lateral delts are small muscles — ego check here. Slow and controlled beats heavy every time.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">5</div><div class="ex-name">Tricep pushdowns (cable or dumbbell overhead)</div><div class="ex-badge"><span class="badge bd-sets">3×12</span><span class="badge bd-rpe">RPE 6</span><span class="badge bd-rest">60 sec</span><span class="badge bd-focus">Triceps</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">If cable machine available: straight bar or rope pushdown · elbows locked at sides · push down fully, control up.<br>If no cable: Dumbbell overhead tricep extension — sit, hold one dumbbell with both hands behind head, extend up. Keep elbows pointing forward.<br><br><strong>Starting weight:</strong> 5–8 kg cable / 6–8 kg dumbbell.</div><div class="ex-tip">Tip: Triceps make up 2/3 of your arm size. This exercise pays off fast for arm appearance at your frame.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">6</div><div class="ex-name">Dumbbell chest flyes (light)</div><div class="ex-badge"><span class="badge bd-sets">2×12</span><span class="badge bd-rpe">RPE 5</span><span class="badge bd-rest">60 sec</span><span class="badge bd-focus">Chest stretch</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Lie flat, arms wide with slight elbow bend, lower dumbbells in arc until you feel a good chest stretch — bring back together. This is a stretch movement, not a strength one.<br><br><strong>Keep very light:</strong> 4–5 kg max. Purpose is chest muscle lengthening and blood flow — doubles as cooldown prep.</div><div class="ex-tip">Tip: Never go heavy on flyes with clicky joints — shoulder impingement risk is real. Light and slow is the rule.</div></div></div>
+    </div>
+    <div class="sec">Cooldown — 8 min <span class="tag t-c">Do not skip</span></div>
+    <div class="phase"><div class="phase-hdr"><div class="phase-icon" style="background:var(--teal-dim)">❄️</div><div class="phase-title">Push day cooldown</div><div class="phase-sub">8 min</div></div><div class="phase-body"><div class="step-row"><div class="step-num">1</div><div style="flex:1"><div class="step-name">Doorframe chest stretch</div><div class="step-detail">Both arms on doorframe at 90°, lean forward gently · hold 30 sec × 2</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">2</div><div style="flex:1"><div class="step-name">Cross-body shoulder stretch</div><div class="step-detail">Bring arm across chest, hold with other arm · 30 sec each side</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">3</div><div style="flex:1"><div class="step-name">Overhead tricep stretch</div><div class="step-detail">Raise arm, bend at elbow, push elbow back with other hand · 30 sec each</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">4</div><div style="flex:1"><div class="step-name">Wrist flexor + extensor stretch</div><div class="step-detail">Extend arm, gently pull fingers back, then down · 20 sec each direction · each wrist</div></div><div class="step-dur">90 sec</div></div><div class="step-row"><div class="step-num">5</div><div style="flex:1"><div class="step-name">Deep breathing — seated</div><div class="step-detail">Sit, 5 deep slow breaths · 4 sec inhale, 6 sec exhale · nervous system recovery</div></div><div class="step-dur">90 sec</div></div></div></div>
+  </div>
+
+  <!-- TUESDAY -->
+  <div class="dp" id="workout-tue">
+    <div class="ban b-i">Tuesday · Pull day · Back, Biceps, Rear delts · 6:15 pm (after labs) · ~65 min total</div>
+    <div class="sec">Warmup — 10 min <span class="tag t-w">Do not skip</span></div>
+    <div class="phase"><div class="phase-hdr"><div class="phase-icon" style="background:var(--green-dim)">🔥</div><div class="phase-title">Pull day warmup</div><div class="phase-sub">10 min</div></div><div class="phase-body"><div class="step-row"><div class="step-num">1</div><div style="flex:1"><div class="step-name">Cat-cow stretches</div><div class="step-detail">On all fours · arch and round back alternately · 10 reps · wakes up the spine for rows</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">2</div><div style="flex:1"><div class="step-name">Arm circles + shoulder rotations</div><div class="step-detail">Big circles both directions · 10 each · opens shoulder joint for pulling</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">3</div><div style="flex:1"><div class="step-name">Band pull-aparts or towel pull-aparts</div><div class="step-detail">Hold towel/band wide, pull apart at chest height · 2 × 15 · critical rear delt + rotator cuff activation</div></div><div class="step-dur">2 min</div></div><div class="step-row"><div class="step-num">4</div><div style="flex:1"><div class="step-name">Dead hangs on bar</div><div class="step-detail">Hang from pull-up bar with straight arms · 2 × 20 sec · decompresses spine, strengthens grip, lubricates shoulder joint</div></div><div class="step-dur">2 min</div></div><div class="step-row"><div class="step-num">5</div><div style="flex:1"><div class="step-name">Scapular pull-ups</div><div class="step-detail">Hang, then depress and retract shoulder blades without bending elbows · 2 × 8 · teaches back engagement before rows and pulldowns</div></div><div class="step-dur">2 min</div></div><div class="step-row"><div class="step-num">6</div><div style="flex:1"><div class="step-name">Wrist rotations + finger extensions</div><div class="step-detail">Both directions · 10 each · prepares grip for pulling exercises</div></div><div class="step-dur">45 sec</div></div></div></div>
+    <div class="sec">Main workout — 45–50 min</div>
+    <div class="ex-grid">
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">1</div><div class="ex-name">Lat pulldowns (machine)</div><div class="ex-badge"><span class="badge bd-sets">3×10–12</span><span class="badge bd-rpe">RPE 6–7</span><span class="badge bd-rest">90 sec</span><span class="badge bd-focus">Lats</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Wide grip, lean back slightly (10–15°), pull bar to upper chest. Don't pull behind neck. Squeeze lats at bottom, slow return — 2 sec up.<br><br><strong>Why first:</strong> Lat pulldown teaches the back engagement pattern you need before rows. Your lats are likely very underdeveloped at 55 kg — this is your most important exercise right now.<br><strong>Starting weight:</strong> 15–20 kg on stack.</div><div class="ex-tip">Tip: Think "elbows to your back pockets" — this cue activates lats far better than just pulling down.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">2</div><div class="ex-name">Seated cable row / dumbbell row</div><div class="ex-badge"><span class="badge bd-sets">3×10</span><span class="badge bd-rpe">RPE 6</span><span class="badge bd-rest">90 sec</span><span class="badge bd-focus">Mid back</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">If cable: sit tall, pull handle to belly button, squeeze shoulder blades at end, slow return. If dumbbell row: one hand + knee on bench, row dumbbell to hip — not to shoulder.<br><br><strong>Keep back straight always</strong> — no rounding. At your current weight, rounding under load = injury risk.</div><div class="ex-tip">Tip: Pause 1 sec at the contracted position (when elbows are back). This mind-muscle connection builds thickness faster.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">3</div><div class="ex-name">Face pulls (cable or band)</div><div class="ex-badge"><span class="badge bd-sets">3×15</span><span class="badge bd-rpe">RPE 5</span><span class="badge bd-rest">60 sec</span><span class="badge bd-focus">Rear delts + rotator cuff</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Cable at face height, pull rope toward face with elbows flared wide. This exercise is non-negotiable for your situation — it directly addresses the muscular imbalance causing shoulder clicking.<br><br>Think of this as joint therapy disguised as an exercise. Do this every single pull day.</div><div class="ex-tip">Tip: If no cable, use a resistance band tied to a door handle. The movement matters more than the equipment.</div><div class="ex-warn">This is the most important exercise for your clicking joints. Never skip it.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">4</div><div class="ex-name">Dumbbell bicep curls</div><div class="ex-badge"><span class="badge bd-sets">3×12</span><span class="badge bd-rpe">RPE 6</span><span class="badge bd-rest">60 sec</span><span class="badge bd-focus">Biceps</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Stand tall, curl one or both dumbbells, elbows stay pinned at sides — don't swing. Supinate (rotate) wrist at top. 2 sec down.<br><br><strong>Starting weight:</strong> 6–8 kg each. Don't ego lift here — swinging is useless and risks elbow tendon strain.</div><div class="ex-tip">Tip: Do alternate arms if using heavy weight — gives each side more control and reduces swinging.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">5</div><div class="ex-name">Hammer curls</div><div class="ex-badge"><span class="badge bd-sets">3×12</span><span class="badge bd-rpe">RPE 6</span><span class="badge bd-rest">60 sec</span><span class="badge bd-focus">Brachialis + forearm</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Same as bicep curl but thumbs point up (neutral grip) throughout. This targets brachialis — the muscle under your bicep that pushes it up, making arms look bigger overall. Also strengthens forearm and wrist — directly helps your clicky wrists.</div><div class="ex-tip">Tip: Can be done seated to remove any tendency to sway. Control is everything here.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">6</div><div class="ex-name">Assisted / negative pull-ups</div><div class="ex-badge"><span class="badge bd-sets">2×5–8</span><span class="badge bd-rpe">RPE 7</span><span class="badge bd-rest">2 min</span><span class="badge bd-focus">Full back</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Week 1–4: Jump to top position, lower yourself as slowly as possible (5 sec down) — this is a negative pull-up. Builds strength without needing to do full reps.<br>Week 9+: Aim for full pull-ups once you can do 5 clean negatives.<br><br>At 55 kg your bodyweight is low — you may find these easier than expected. That's good — use it.</div><div class="ex-tip">Tip: Grip slightly wider than shoulder width, pull elbows down to hips — not arms to bar. This distinction is everything for back activation.</div></div></div>
+    </div>
+    <div class="sec">Cooldown — 8 min <span class="tag t-c">Do not skip</span></div>
+    <div class="phase"><div class="phase-hdr"><div class="phase-icon" style="background:var(--teal-dim)">❄️</div><div class="phase-title">Pull day cooldown</div><div class="phase-sub">8 min</div></div><div class="phase-body"><div class="step-row"><div class="step-num">1</div><div style="flex:1"><div class="step-name">Child's pose</div><div class="step-detail">Kneel, stretch arms forward on floor · hold 45 sec × 2 · full lat and back stretch</div></div><div class="step-dur">90 sec</div></div><div class="step-row"><div class="step-num">2</div><div style="flex:1"><div class="step-name">Dead hang (passive)</div><div class="step-detail">Just hang from the bar, relax everything · 3 × 20 sec · decompresses spine after rows</div></div><div class="step-dur">2 min</div></div><div class="step-row"><div class="step-num">3</div><div style="flex:1"><div class="step-name">Bicep wall stretch</div><div class="step-detail">Place palm on wall behind you at shoulder height, rotate body away · 30 sec each arm</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">4</div><div style="flex:1"><div class="step-name">Thoracic extension on bench</div><div class="step-detail">Sit in front of bench, lean back over it, arms overhead · hold 30 sec · opens upper back beautifully</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">5</div><div style="flex:1"><div class="step-name">Deep breathing</div><div class="step-detail">5 slow breaths, 4 in 6 out · seated · brings heart rate down and cortisol down</div></div><div class="step-dur">90 sec</div></div></div></div>
+  </div>
+
+  <!-- WEDNESDAY -->
+  <div class="dp" id="workout-wed">
+    <div class="ban b-g">Wednesday is active recovery — not a skip day, not a hard workout day. This is where your muscles actually grow. Protect it.</div>
+    <div class="sec">Active recovery routine</div>
+    <div class="tl">
+      <div class="bl bmr"><div class="dot"></div><div class="tm">Morning</div><div class="bc"><div class="bn">15–20 min walk <span class="tag t-r">Recovery</span></div><div class="bsub">Light pace · outside if possible · sunlight = vitamin D = better testosterone + bone health for bulk</div></div></div>
+      <div class="bl bmr"><div class="dot"></div><div class="tm">Anytime</div><div class="bc"><div class="bn">Full body stretch — 15 min <span class="tag t-r">Recovery</span></div><div class="bsub">Focus on chest, back, hips · hold each stretch 30–45 sec · no bouncing · see recovery tab for full routine</div></div></div>
+      <div class="bl bfr"><div class="dot"></div><div class="tm">All day</div><div class="bc"><div class="bn">You time — fully off <span class="tag t-f">Free</span></div><div class="bsub">Friends · entertainment · hobbies · rest is training · your CNS needs this day</div></div></div>
+      <div class="bl bfd"><div class="dot"></div><div class="tm">All meals</div><div class="bc"><div class="bn">Hit protein target — even on rest days <span class="tag t-m">Nutrition</span></div><div class="bsub">Muscles repair on rest days — they still need protein. Don't undereat because you didn't gym.</div></div></div>
+    </div>
+    <div class="ban b-w" style="margin-top:.8rem">Wednesday has your longest free window (11:40 am – 3:50 pm). Use 2 hrs for study, then actual free time — not more study. Mental recovery matters for gains too.</div>
+  </div>
+
+  <!-- THURSDAY -->
+  <div class="dp" id="workout-thu">
+    <div class="ban b-i">Thursday · Legs day · Quads, Hamstrings, Glutes, Calves, Core · 6:15 pm (after labs) · ~65 min</div>
+    <div class="ban b-r">Leg day is the most important day for overall bulk at your frame. Legs are the biggest muscle group — training them spikes growth hormone and testosterone more than any other session. Don't skip it.</div>
+    <div class="sec">Warmup — 12 min <span class="tag t-w">Longer today — knee + hip prep</span></div>
+    <div class="phase"><div class="phase-hdr"><div class="phase-icon" style="background:var(--green-dim)">🔥</div><div class="phase-title">Leg day warmup</div><div class="phase-sub">12 min</div></div><div class="phase-body"><div class="step-row"><div class="step-num">1</div><div style="flex:1"><div class="step-name">Knee circles</div><div class="step-detail">Stand, hands on knees, rotate gently · 10 each direction · lubricates knee joint before any load</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">2</div><div style="flex:1"><div class="step-name">Hip circles</div><div class="step-detail">Stand, hands on hips, make big circles · 10 each direction · opens hip for squats</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">3</div><div style="flex:1"><div class="step-name">Ankle rotations</div><div class="step-detail">Lift foot, rotate ankle both ways · 10 each · critical for squat stability</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">4</div><div style="flex:1"><div class="step-name">Bodyweight squats — slow</div><div class="step-detail">3 sec down, 1 sec pause at bottom, 2 sec up · 2 × 10 · groove the pattern, check knee tracking</div></div><div class="step-dur">3 min</div></div><div class="step-row"><div class="step-num">5</div><div style="flex:1"><div class="step-name">Walking lunges — bodyweight</div><div class="step-detail">10 each leg · big step, back knee lightly touches floor · activates glutes + quads + hip flexors</div></div><div class="step-dur">2 min</div></div><div class="step-row"><div class="step-num">6</div><div style="flex:1"><div class="step-name">Glute bridges</div><div class="step-detail">Lie on back, feet flat, push hips up, squeeze glutes at top · 2 × 15 · activates posterior chain before squats</div></div><div class="step-dur">2 min</div></div><div class="step-row"><div class="step-num">7</div><div style="flex:1"><div class="step-name">Calf raises — bodyweight</div><div class="step-detail">2 × 20 · slow and full range · warms ankle joint</div></div><div class="step-dur">90 sec</div></div></div></div>
+    <div class="sec">Main workout — 45–50 min</div>
+    <div class="ex-grid">
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">1</div><div class="ex-name">Goblet squat (dumbbell)</div><div class="ex-badge"><span class="badge bd-sets">3×10–12</span><span class="badge bd-rpe">RPE 6</span><span class="badge bd-rest">2 min</span><span class="badge bd-focus">Quads + glutes</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Hold one dumbbell at chest with both hands, squat down keeping chest up and knees tracking over toes. Go to parallel or slightly below.<br><br><strong>Why goblet not barbell first:</strong> Goblet squat forces upright torso, teaches depth, and is much safer for your joints than barbell back squat. Progress to barbell in Phase 2–3.<br><strong>Starting weight:</strong> 8–10 kg dumbbell.</div><div class="ex-tip">Tip: Push knees out (don't let them cave in) — say "spread the floor with your feet" mentally. At 55 kg your knees will be under less stress than average — use this advantage.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">2</div><div class="ex-name">Leg press (machine)</div><div class="ex-badge"><span class="badge bd-sets">3×12</span><span class="badge bd-rpe">RPE 6–7</span><span class="badge bd-rest">2 min</span><span class="badge bd-focus">Quads + glutes</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Feet shoulder-width on platform, push through heels, don't lock out knees at top. Lower slowly — 3 sec down. This machine allows you to load legs safely without spine compression — perfect for your current state.<br><br><strong>Starting weight:</strong> 30–40 kg on machine. Will feel light — that's correct in Phase 1.</div><div class="ex-tip">Tip: Don't let lower back peel off the seat pad. If it does, your feet are too low or weight is too heavy.</div><div class="ex-warn">Never lock out knees on leg press — joint stress is huge at lockout under load.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">3</div><div class="ex-name">Romanian deadlift (dumbbell, light)</div><div class="ex-badge"><span class="badge bd-sets">3×10</span><span class="badge bd-rpe">RPE 6</span><span class="badge bd-rest">90 sec</span><span class="badge bd-focus">Hamstrings + lower back</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Stand with dumbbells, hinge at hips (not squat), lower dumbbells along legs until you feel hamstring stretch, drive hips forward to come back up. Back stays neutral — not rounded.<br><br><strong>Critical note:</strong> This is the most important posterior chain exercise for you. Weak hamstrings and lower back are common post-illness. Start at 8–10 kg each.<br><br><strong>Do NOT do conventional deadlift from floor yet</strong> — too much lower back risk without a solid strength base.</div><div class="ex-tip">Tip: Push your hips backward as you lower — not just bending forward. Feeling it in hamstrings = correct. Feeling it in lower back = too heavy or rounding.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">4</div><div class="ex-name">Leg curl machine (or Nordic curl)</div><div class="ex-badge"><span class="badge bd-sets">3×12</span><span class="badge bd-rpe">RPE 6</span><span class="badge bd-rest">60 sec</span><span class="badge bd-focus">Hamstrings</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">If machine available: lie prone, curl heels to glutes, squeeze at top, slow return — 3 sec down. This isolates hamstrings without lower back involvement — safe and effective.<br><br>If no machine: Nordic curl — kneel on mat, partner/bench holds ankles, lower your body forward as slowly as possible using hamstrings.</div><div class="ex-tip">Tip: Don't let hips lift off the pad during leg curls — this means the weight is too heavy.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">5</div><div class="ex-name">Standing calf raises</div><div class="ex-badge"><span class="badge bd-sets">4×20</span><span class="badge bd-rpe">RPE 6</span><span class="badge bd-rest">45 sec</span><span class="badge bd-focus">Calves</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Stand on edge of step or flat floor, rise onto toes fully, lower all the way down (full range). Hold dumbbell in one hand for resistance once bodyweight feels easy.<br><br>Calves are slow-twitch dominant — they need high reps (20+) to grow. Don't expect results from 3×10 here.</div><div class="ex-tip">Tip: Pause 1 sec at the top of each rep. This pause eliminates the bounce reflex and forces actual muscle contraction.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">6</div><div class="ex-name">Plank + dead bug (core)</div><div class="ex-badge"><span class="badge bd-sets">3 rounds</span><span class="badge bd-rpe">RPE 5</span><span class="badge bd-rest">60 sec</span><span class="badge bd-focus">Core stability</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>Plank:</strong> 30–45 sec · forearms on floor, body straight, don't let hips sag or rise · core tight throughout.<br><strong>Dead bug (immediately after):</strong> Lie on back, arms up, legs up bent at 90° · lower opposite arm + leg toward floor without lower back lifting · 8 each side.<br><br>This combination builds the core strength needed to safely do squats and deadlifts with more weight later.</div><div class="ex-tip">Tip: Core training here is investment — without a strong core, you can't safely add weight to compound lifts. This pays off in Phase 2–3.</div></div></div>
+    </div>
+    <div class="sec">Cooldown — 10 min <span class="tag t-c">Especially important after legs</span></div>
+    <div class="phase"><div class="phase-hdr"><div class="phase-icon" style="background:var(--teal-dim)">❄️</div><div class="phase-title">Leg day cooldown</div><div class="phase-sub">10 min</div></div><div class="phase-body"><div class="step-row"><div class="step-num">1</div><div style="flex:1"><div class="step-name">Quad stretch — standing</div><div class="step-detail">Hold ankle behind you, knee pointing down · 45 sec each side · gentle pull only</div></div><div class="step-dur">90 sec</div></div><div class="step-row"><div class="step-num">2</div><div style="flex:1"><div class="step-name">Hamstring stretch — seated</div><div class="step-detail">Sit on floor, legs straight, reach toward feet · hold 45 sec × 2 · don't round back</div></div><div class="step-dur">90 sec</div></div><div class="step-row"><div class="step-num">3</div><div style="flex:1"><div class="step-name">Pigeon pose (or figure-4)</div><div class="step-detail">Lie on back, cross ankle over opposite knee, pull both legs toward chest · 45 sec each · best hip flexor + glute stretch</div></div><div class="step-dur">90 sec</div></div><div class="step-row"><div class="step-num">4</div><div style="flex:1"><div class="step-name">Calf stretch — wall</div><div class="step-detail">Hands on wall, one leg back heel flat · hold 30 sec each side</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">5</div><div style="flex:1"><div class="step-name">Child's pose</div><div class="step-detail">Kneel, stretch arms forward · hold 60 sec · full lower back and hip decompression</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">6</div><div style="flex:1"><div class="step-name">Deep breathing — lying down</div><div class="step-detail">Lie flat, 8 slow deep breaths · legs slightly elevated if possible · blood return from legs</div></div><div class="step-dur">2 min</div></div></div></div>
+  </div>
+
+  <!-- FRIDAY -->
+  <div class="dp" id="workout-fri">
+    <div class="ban b-i">Friday · Push+ day · Upper chest focus + shoulder hypertrophy + tricep volume · 6:15 pm · ~65 min</div>
+    <div class="ban b-g">Friday push is slightly different from Monday — more shoulder and upper chest focus, slightly higher rep ranges for hypertrophy. Same warmup as Monday but extended shoulder prep.</div>
+    <div class="sec">Warmup — 10 min <span class="tag t-w">Same as Monday + extra shoulder prep</span></div>
+    <div class="phase"><div class="phase-hdr"><div class="phase-icon" style="background:var(--green-dim)">🔥</div><div class="phase-title">Friday push warmup</div><div class="phase-sub">10 min</div></div><div class="phase-body"><div class="step-row"><div class="step-num">1</div><div style="flex:1"><div class="step-name">All Monday warmup steps 1–4</div><div class="step-detail">Arm circles · wrist rotations · neck rolls · chest opener · same routine</div></div><div class="step-dur">3 min</div></div><div class="step-row"><div class="step-num">2</div><div style="flex:1"><div class="step-name">Band / towel pull-aparts</div><div class="step-detail">2 × 15 · extra shoulder health prep since this day has more shoulder volume</div></div><div class="step-dur">2 min</div></div><div class="step-row"><div class="step-num">3</div><div style="flex:1"><div class="step-name">Wall slides</div><div class="step-detail">Stand against wall, elbows bent at 90° touching wall, slide arms overhead while keeping contact · 2 × 10 · best exercise for shoulder joint health</div></div><div class="step-dur">2 min</div></div><div class="step-row"><div class="step-num">4</div><div style="flex:1"><div class="step-name">Incline push-ups (activation)</div><div class="step-detail">Hands on bench, do 2 × 10 · warms up upper chest specifically before incline work</div></div><div class="step-dur">2 min</div></div></div></div>
+    <div class="sec">Main workout — 45–50 min</div>
+    <div class="ex-grid">
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">1</div><div class="ex-name">Incline dumbbell press — lead exercise today</div><div class="ex-badge"><span class="badge bd-sets">4×10</span><span class="badge bd-rpe">RPE 7</span><span class="badge bd-rest">90 sec</span><span class="badge bd-focus">Upper chest</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Same technique as Tuesday but this is now the primary lift. 30–45° incline. At your height, upper chest is visible even in a t-shirt — developing it transforms how your frame looks quickly.<br><br>Go 1–2 kg heavier than you used this on Monday's session (where it was secondary).</div><div class="ex-tip">Tip: Upper chest is often underdeveloped in beginners. Making this your lead exercise on Fridays ensures balanced chest development across your tall frame.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">2</div><div class="ex-name">Arnold press (seated)</div><div class="ex-badge"><span class="badge bd-sets">3×10</span><span class="badge bd-rpe">RPE 6–7</span><span class="badge bd-rest">90 sec</span><span class="badge bd-focus">Full shoulder</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Start with dumbbells at shoulder height, palms facing you. As you press up, rotate palms outward so they face forward at the top. Reverse on the way down.<br><br>Hits all 3 heads of the deltoid in one movement — front, side, and rear. Excellent for building the "capped" shoulder look that makes a tall person like you look proportional.</div><div class="ex-tip">Tip: Keep the rotation smooth and controlled — don't jerk. Start 1–2 kg lighter than regular OHP.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">3</div><div class="ex-name">Cable / dumbbell lateral raises</div><div class="ex-badge"><span class="badge bd-sets">4×15</span><span class="badge bd-rpe">RPE 6</span><span class="badge bd-rest">60 sec</span><span class="badge bd-focus">Side delts</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">More sets than Monday — side delt volume is the #1 thing that makes shoulders look wide and fills out a tall frame. Don't underestimate these.<br><br>If cable available: cable lateral raises give constant tension throughout — more effective than dumbbells. Pull from low cable, one arm at a time.</div><div class="ex-tip">Tip: 4 × 15 with light weight here builds more visible muscle than 3 × 8 with heavy weight for side delts specifically.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">4</div><div class="ex-name">Close-grip bench press or skull crushers</div><div class="ex-badge"><span class="badge bd-sets">3×10–12</span><span class="badge bd-rpe">RPE 6</span><span class="badge bd-rest">90 sec</span><span class="badge bd-focus">Triceps (long head)</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>Close-grip bench:</strong> Same bench position, hands shoulder-width (closer than normal), lower bar to lower chest, press up — elbows stay close to body throughout. Primary tricep builder.<br><strong>Skull crushers:</strong> Lie on bench, hold dumbbells above chest, lower them toward forehead by bending elbows, extend back up. Targets long head of tricep (biggest portion).</div><div class="ex-tip">Tip: Long head of tricep only stretches when arms are overhead or behind — skull crushers target this part better than pushdowns. Alternate between these two each week.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-num">5</div><div class="ex-name">Push-up variations — finisher</div><div class="ex-badge"><span class="badge bd-sets">2×max</span><span class="badge bd-rpe">RPE 8</span><span class="badge bd-rest">90 sec</span><span class="badge bd-focus">Chest + triceps</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail">Week 1–4: Regular push-ups to failure. Week 5–8: Decline push-ups (feet elevated) for upper chest. Week 9+: Archer push-ups or weighted push-ups with plate on back.<br><br>This is your burnout finisher — whatever you have left at the end of the session, leave it here. No more exercises after this.</div><div class="ex-tip">Tip: At 55 kg your bodyweight pushups are easy — embrace it. Decline push-ups are where it gets genuinely hard and effective.</div></div></div>
+    </div>
+    <div class="sec">Cooldown — 8 min <span class="tag t-c">Same as Monday</span></div>
+    <div class="phase"><div class="phase-hdr"><div class="phase-icon" style="background:var(--teal-dim)">❄️</div><div class="phase-title">Friday push cooldown</div><div class="phase-sub">8 min · same as Monday</div></div><div class="phase-body"><div class="step-row"><div class="step-num">1</div><div style="flex:1"><div class="step-name">All Monday cooldown steps</div><div class="step-detail">Doorframe chest stretch · cross-body shoulder stretch · overhead tricep stretch · wrist stretch · deep breathing</div></div><div class="step-dur">8 min</div></div></div></div>
+  </div>
+
+  <!-- SATURDAY -->
+  <div class="dp" id="workout-sat">
+    <div class="ban b-g">Saturday — No classes. Full rest + study day. No gym. This is muscle growth day — the gym stimulus happened, now the body rebuilds.</div>
+    <div class="sec">Saturday active recovery (optional — 20 min only)</div>
+    <div class="tl">
+      <div class="bl bmr"><div class="dot"></div><div class="tm">Morning</div><div class="bc"><div class="bn">20 min easy walk outside</div><div class="bsub">Sunlight + fresh air · lowers cortisol · promotes recovery · don't make this a workout</div></div></div>
+      <div class="bl bmr"><div class="dot"></div><div class="tm">Anytime</div><div class="bc"><div class="bn">10 min full-body stretch</div><div class="bsub">Focus on whatever is sore from this week · see recovery tab</div></div></div>
+      <div class="bl bfr"><div class="dot"></div><div class="tm">All day</div><div class="bc"><div class="bn">You time — actual free time</div><div class="bsub">Games · friends · movies · music · sleep in a little if needed · you've earned it</div></div></div>
+    </div>
+    <div class="ban b-w">Saturday lunch is 12:30–2:30. Hit your protein target even on this day — muscles are actively repairing from Thu + Fri gym sessions.</div>
+  </div>
+
+  <!-- SUNDAY -->
+  <div class="dp" id="workout-sun">
+    <div class="ban b-g">Sunday — No classes. Full free day. Light jog optional. Study + recovery + planning for the week.</div>
+    <div class="tl">
+      <div class="bl bmr"><div class="dot"></div><div class="tm">8:30 am</div><div class="bc"><div class="bn">Light jog or walk — 20 min max</div><div class="bsub">Easy pace · not a run · clears mental fog for the week ahead · optional</div></div></div>
+      <div class="bl bfr"><div class="dot"></div><div class="tm">All day</div><div class="bc"><div class="bn">You time + study balance</div><div class="bsub">Morning study · afternoon free · evening plan the week · no gym</div></div></div>
+      <div class="bl bst"><div class="dot"></div><div class="tm">6:00 pm</div><div class="bc"><div class="bn">Week plan — 10 min only</div><div class="bsub">Write 3 study + 1 gym goal for the week · keeps you on track without stress</div></div></div>
+    </div>
+  </div>
+
+  <!-- NUTRITION -->
+  <div class="dp" id="workout-nutrition">
+    <div class="ban b-r">At 184 cm / 55 kg your BMI is 16.2. This is the most critical factor of your entire plan. Without a consistent calorie surplus, no amount of gym will build muscle. You need 2,800–3,200 kcal/day. Right now you're probably eating ~1,800–2,000 kcal. The gap is enormous.</div>
+    <div class="ban b-p">Target: 110–120g protein/day · 350–400g carbs/day · 60–80g fat/day · No milk · Veg + egg · Mess + kirana · ₹30–60/day extra</div>
+    <div class="sec">Mess timing alignment</div>
+    <div class="ig">
+      <div class="ic"><div class="il">Breakfast window</div><div class="iv">7–9 am · Eat by 7:15 am sharp · 30–35g protein target</div></div>
+      <div class="ic"><div class="il">Lunch window (weekday)</div><div class="iv">12–2 pm · Eat by 12:30 · 35–40g protein</div></div>
+      <div class="ic"><div class="il">Lunch window (weekend)</div><div class="iv">12:30–2:30 pm · Eat by 1 pm · same target</div></div>
+      <div class="ic"><div class="il">Dinner window</div><div class="iv">7–9 pm · Eat by 7:30 pm · 35–40g protein · most critical on gym days</div></div>
+      <div class="ic"><div class="il">Mid-morning snack</div><div class="iv">Between class slots · peanuts / chikki · 8–10g protein</div></div>
+      <div class="ic"><div class="il">Pre-gym snack</div><div class="iv">4:45–5:00 pm · banana + chana/peanuts · 10–12g protein + carbs</div></div>
+      <div class="ic"><div class="il">Bedtime snack</div><div class="iv">10:00–10:30 pm · nuts + peanut butter · 10–12g · slow overnight release</div></div>
+    </div>
+    <div class="sec">Breakfast — rotate daily (7:00–7:30 am)</div>
+    <div class="meal-card"><div class="meal-hdr"><div class="meal-time">7:00–7:30 am</div><div class="meal-name">Breakfast</div><div class="meal-p">Target: 30–35g protein</div></div><div class="meal-body"><div class="meal-opt"><strong>Mon/Thu (SI):</strong> 3 idli + sambar + coconut chutney (mess) + 3 boiled eggs + 1 banana · ~32g protein · free from mess + ₹0 extra</div><div class="meal-opt"><strong>Tue/Fri (NI):</strong> 2 aloo paratha + curd (mess) + 2 eggs + peanut butter toast (kirana ₹10) · ~30g protein</div><div class="meal-opt"><strong>Wed (heavy):</strong> Pongal + sambar (mess) + 3 eggs + banana + peanut chikki · ~30g protein · leg day = more carbs</div><div class="meal-opt"><strong>Sat/Sun (special):</strong> Dosa/uttapam (mess) + 3 eggs + curd + sprouted moong chaat (₹15) · ~35g protein</div><div class="meal-opt"><strong>Quick fallback:</strong> 3 boiled eggs + bread + peanut butter + banana + curd · ~28g protein · when mess is bad</div></div></div>
+    <div class="sec">Mid-morning snack (between classes)</div>
+    <div class="meal-card"><div class="meal-hdr"><div class="meal-time">Between slots</div><div class="meal-name">Carry snack</div><div class="meal-p">~10g protein · ₹10–15</div></div><div class="meal-body"><div class="meal-opt"><strong>Option A:</strong> Roasted peanuts (30g) · kirana ₹8 · 8g protein · carry in pocket</div><div class="meal-opt"><strong>Option B:</strong> Peanut chikki × 2 pieces · kirana ₹10 · 7g protein + quick carbs</div><div class="meal-opt"><strong>Option C:</strong> Banana + peanut butter sachet · ₹12 total · 8g protein · pre-lab fuel</div><div class="meal-opt"><strong>Option D:</strong> Roasted chana (handful) · kirana ₹10 · 10g protein · best snack for bulk</div></div></div>
+    <div class="sec">Lunch — rotate (12:00–12:30 pm)</div>
+    <div class="meal-card"><div class="meal-hdr"><div class="meal-time">12:00–12:30 pm</div><div class="meal-name">Lunch — eat 2 full plates</div><div class="meal-p">Target: 35–40g protein</div></div><div class="meal-body"><div class="meal-opt"><strong>Gym day lunch (Mon/Tue/Thu/Fri):</strong> Rajma/chole + 2 cups rice + 2 roti + extra dal + curd + papad · ~38g protein · extra carbs for gym</div><div class="meal-opt"><strong>Rest day lunch (Wed/Sat/Sun):</strong> Dal + 2 roti + sabzi + paneer (if available) + curd · ~32g protein</div><div class="meal-opt"><strong>SI option:</strong> Sambar rice + rasam + curd + 2 boiled eggs (if available in mess) + papad · ~30g protein</div><div class="meal-opt"><strong>Boost trick:</strong> Always take extra dal — it's free from mess and adds 8–10g protein per extra bowl. Take 2 bowls every single day.</div></div></div>
+    <div class="sec">Pre-gym snack (4:45–5:00 pm)</div>
+    <div class="meal-card"><div class="meal-hdr"><div class="meal-time">4:45–5:00 pm</div><div class="meal-name">Pre-workout fuel</div><div class="meal-p">Carbs + protein · eat 40 min before gym</div></div><div class="meal-body"><div class="meal-opt"><strong>Push/Pull days (Mon/Tue/Fri):</strong> 1 banana + 30g peanuts + 1 boiled egg · ~16g protein + good carbs · ~₹10</div><div class="meal-opt"><strong>Leg day (Thu):</strong> 1 banana + boiled sweet potato (₹15) + chana chaat · more carbs for legs · ~15g protein</div><div class="meal-opt"><strong>Quick option:</strong> Curd + banana + jaggery · mess curd + ₹5 banana · ~8g protein · fine if short on time</div></div></div>
+    <div class="sec">Dinner (7:00–7:30 pm) — most important meal on gym days</div>
+    <div class="meal-card"><div class="meal-hdr"><div class="meal-time">7:00–7:30 pm</div><div class="meal-name">Dinner — EAT THE MOST HERE</div><div class="meal-p">Target: 35–40g protein · eat 2 full plates</div></div><div class="meal-body"><div class="meal-opt"><strong>Gym days (Mon/Tue/Thu/Fri):</strong> Paneer curry + 2 roti + dal + rice + curd · ~40g protein · ask for extra paneer · most critical post-gym meal</div><div class="meal-opt"><strong>Gym days alt:</strong> Egg curry + rice + 2 roti + dal + curd · ~38g protein · even better protein profile than paneer</div><div class="meal-opt"><strong>Rest days (Wed/Sat/Sun):</strong> Dal + sabzi + roti + curd rice + curd · ~28g protein · still hit target with extra dal</div><div class="meal-opt"><strong>Swiggy treat (once a week):</strong> Soya chaap / tofu bhurji + roti · ₹50 · ~30g protein · lactose-free · great variety · do this Friday or Sunday</div><div class="meal-opt"><strong>Always:</strong> Take extra dal (free from mess) + extra curd + extra rice. You need the calories. Never leave the mess having eaten only one plate.</div></div></div>
+    <div class="sec">Bedtime snack (10:00–10:30 pm)</div>
+    <div class="meal-card"><div class="meal-hdr"><div class="meal-time">10:00–10:30 pm</div><div class="meal-name">Overnight muscle repair</div><div class="meal-p">~12–15g protein · slow digesting</div></div><div class="meal-body"><div class="meal-opt"><strong>Option A (best):</strong> 20g peanut butter + 10 almonds + 5 cashews · ~12g protein · slow digesting fats = overnight release · ₹15</div><div class="meal-opt"><strong>Option B:</strong> 40g peanuts + 1 banana · ~12g protein + carbs to refill glycogen · ₹8</div><div class="meal-opt"><strong>Option C:</strong> 1 cup curd + peanuts + jaggery · ~10g protein · probiotic bonus for gut health</div></div></div>
+    <div class="sec">Daily protein tracker (target 110–120g)</div>
+    <div class="ig">
+      <div class="ic"><div class="il">Breakfast (7:30 am)</div><div class="iv">~32g</div><div class="prog-bar-wrap"><div class="prog-bar" style="width:27%;background:var(--primary)"></div></div></div>
+      <div class="ic"><div class="il">Mid-morning snack</div><div class="iv">~10g</div><div class="prog-bar-wrap"><div class="prog-bar" style="width:8%;background:var(--blue)"></div></div></div>
+      <div class="ic"><div class="il">Lunch (12:30 pm)</div><div class="iv">~38g</div><div class="prog-bar-wrap"><div class="prog-bar" style="width:32%;background:var(--green)"></div></div></div>
+      <div class="ic"><div class="il">Pre-gym snack</div><div class="iv">~15g</div><div class="prog-bar-wrap"><div class="prog-bar" style="width:13%;background:var(--yellow)"></div></div></div>
+      <div class="ic"><div class="il">Dinner (7:30 pm)</div><div class="iv">~38g</div><div class="prog-bar-wrap"><div class="prog-bar" style="width:32%;background:var(--red)"></div></div></div>
+      <div class="ic"><div class="il">Bedtime snack</div><div class="iv">~12g</div><div class="prog-bar-wrap"><div class="prog-bar" style="width:10%;background:var(--teal)"></div></div></div>
+      <div class="ic" style="border-color:rgba(52,217,111,.4)"><div class="il">Total</div><div class="iv" style="color:var(--green)">~145g ✓ above target</div><div class="prog-bar-wrap"><div class="prog-bar" style="width:100%;background:var(--green)"></div></div></div>
+    </div>
+  </div>
+
+  <!-- RECOVERY -->
+  <div class="dp" id="workout-recovery">
+    <div class="ban b-p">Recovery is 50% of your gains. At 55 kg after serious illness, your body has very limited reserves. Sleep, stretching, and nutrition on rest days are not optional — they are when the actual growth happens.</div>
+    <div class="sec">Sleep protocol — most important</div>
+    <div class="ig">
+      <div class="ic"><div class="il">Target</div><div class="iv">7.5–8 hrs every night · non-negotiable for your situation</div></div>
+      <div class="ic"><div class="il">Why critical for you</div><div class="iv">Post-illness, your cortisol is elevated. Sleep is the only thing that lowers it. High cortisol = zero muscle gain.</div></div>
+      <div class="ic"><div class="il">Sleep time target</div><div class="iv">10:30–11:00 pm · wake 6:15–7:00 am</div></div>
+      <div class="ic"><div class="il">No screens</div><div class="iv">20 min before bed · blue light delays sleep onset by 45–90 min</div></div>
+      <div class="ic"><div class="il">Bedtime snack</div><div class="iv">Eat 30 min before sleep · peanuts + curd · raises insulin slightly = better overnight protein synthesis</div></div>
+      <div class="ic"><div class="il">Weekend rule</div><div class="iv">Sleep in max 1 hr later on Sat/Sun · more than that disrupts Mon morning</div></div>
+    </div>
+    <div class="sec">Full body stretch routine (Wed + Sat + Sun · 15 min)</div>
+    <div class="phase"><div class="phase-hdr"><div class="phase-icon" style="background:var(--teal-dim)">🧘</div><div class="phase-title">Weekly recovery stretch</div><div class="phase-sub">15 min · do on rest days</div></div><div class="phase-body"><div class="step-row"><div class="step-num">1</div><div style="flex:1"><div class="step-name">Child's pose</div><div class="step-detail">Full lat + lower back stretch · arms extended · breathe into back · hold 60 sec</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">2</div><div style="flex:1"><div class="step-name">Hip flexor lunge stretch</div><div class="step-detail">One knee on floor, lean forward gently · 45 sec each side · relieves tightness from sitting in class</div></div><div class="step-dur">90 sec</div></div><div class="step-row"><div class="step-num">3</div><div style="flex:1"><div class="step-name">Chest doorframe stretch</div><div class="step-detail">Both arms on doorframe, lean forward · 30 sec × 2 · counteracts hunching from desk/laptop</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">4</div><div style="flex:1"><div class="step-name">Seated hamstring stretch</div><div class="step-detail">Legs straight, reach forward · 45 sec × 2 · at 184 cm hamstring tightness is very common</div></div><div class="step-dur">90 sec</div></div><div class="step-row"><div class="step-num">5</div><div style="flex:1"><div class="step-name">Thoracic rotation (seated)</div><div class="step-detail">Sit cross-legged, rotate upper body each direction · 30 sec each · loosens mid-back</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">6</div><div style="flex:1"><div class="step-name">Neck stretch — side to side</div><div class="step-detail">Tilt ear toward shoulder gently, hand adds slight pressure · 30 sec each side · relieves desk tension</div></div><div class="step-dur">60 sec</div></div><div class="step-row"><div class="step-num">7</div><div style="flex:1"><div class="step-name">Full shoulder rotation stretch</div><div class="step-detail">One arm across chest (30 sec) · overhead tricep (30 sec) · behind back clasp (30 sec) · each side</div></div><div class="step-dur">3 min</div></div><div class="step-row"><div class="step-num">8</div><div style="flex:1"><div class="step-name">Wrist + forearm stretches</div><div class="step-detail">Extend arm, pull fingers back · then press fingers down · 20 sec each direction each wrist</div></div><div class="step-dur">90 sec</div></div><div class="step-row"><div class="step-num">9</div><div style="flex:1"><div class="step-name">Supine twist</div><div class="step-detail">Lie on back, pull one knee across body to floor on opposite side · 45 sec each side · full spine decompression</div></div><div class="step-dur">90 sec</div></div></div></div>
+    <div class="sec">Joint care protocol — specific to you</div>
+    <div class="ban b-o">Your joints clicking is from: (1) low muscle mass around joint = instability, (2) post-illness mineral depletion, (3) dehydration. All three are fixable with time, training, and nutrition. This protocol directly addresses each.</div>
+    <div class="ig">
+      <div class="ic"><div class="il">Daily joint circles</div><div class="iv">Every morning before anything: wrists, ankles, hips, shoulders · 10 each direction · 2 min total</div></div>
+      <div class="ic"><div class="il">Hydration</div><div class="iv">3–4 litres water/day minimum · dehydrated cartilage = clicking and grinding sounds</div></div>
+      <div class="ic"><div class="il">Flaxseeds (₹50/month)</div><div class="iv">1 tbsp in curd daily · omega-3 = natural joint lubricant · best cheap option since no fish</div></div>
+      <div class="ic"><div class="il">Sunlight daily</div><div class="iv">15–20 min direct sunlight · vitamin D = bone density + joint health + testosterone</div></div>
+      <div class="ic"><div class="il">No joint locking</div><div class="iv">Never fully lock out elbows or knees under load · this is the single biggest joint protection rule</div></div>
+      <div class="ic"><div class="il">Sharp pain rule</div><div class="iv">Dull muscle burn = keep going · sharp joint pain = stop immediately · no exceptions</div></div>
+    </div>
+    <div class="sec">Progressive overload schedule</div>
+    <div class="ig">
+      <div class="ic"><div class="il">Weeks 1–4</div><div class="iv">2 sets per exercise · 50% effort · learn all movements · no weight increases</div></div>
+      <div class="ic"><div class="il">Weeks 5–8</div><div class="iv">3 sets · increase weight by 1–2 kg when last set has 2 reps left in the tank</div></div>
+      <div class="ic"><div class="il">Weeks 9–12</div><div class="iv">4 sets on compounds · add goblet → barbell squat · add RDL weight · real overload begins</div></div>
+      <div class="ic"><div class="il">Month 4+</div><div class="iv">Review with a trainer · consider 5-day split · you should be 5–7 kg heavier by now</div></div>
+      <div class="ic"><div class="il">Weight gain target</div><div class="iv">0.5–1 kg per month = healthy bulk rate · 6–8 kg in 6 months = realistic goal</div></div>
+      <div class="ic"><div class="il">Track progress</div><div class="iv">Weigh yourself every Sunday morning before eating · log it · adjust food if not gaining</div></div>
+    </div>
+    <div class="ban b-g" style="margin-top:.8rem">You have one significant advantage: at 55 kg as a beginner returning after illness, you will experience "newbie gains" — muscle growth is fastest in the first 6 months. Your body will respond dramatically to even moderate training + consistent eating. The plan only works if the food is consistent. Train 4 days, eat 7 days.</div>
+  </div>
+</div><!-- /plan-workout -->
+
+<!-- ════════════════════════════════ -->
+<!-- ══   LOOKSMAXXING PANEL       ══ -->
+<!-- ════════════════════════════════ -->
+<div class="plan-panel" id="plan-looks">
+  <div class="tabs" id="tabs-looks">
+    <div class="tab active" onclick="ST('looks','root',this)">Root causes</div>
+    <div class="tab" onclick="ST('looks','morning',this)">AM routine</div>
+    <div class="tab" onclick="ST('looks','night',this)">PM routine</div>
+    <div class="tab" onclick="ST('looks','face',this)">Face exercises</div>
+    <div class="tab" onclick="ST('looks','jaw',this)">Jaw + lips</div>
+    <div class="tab" onclick="ST('looks','habits',this)">Fix habits</div>
+    <div class="tab" onclick="ST('looks','skin',this)">Skincare</div>
+    <div class="tab" onclick="ST('looks','timeline',this)">Timeline</div>
+  </div>
+
+  <!-- ROOT CAUSES -->
+  <div class="dp active" id="looks-root">
+    <div class="ban b-r">You have all 4 asymmetry-causing habits simultaneously — sleep posture, mouth breathing, forward head posture, and uneven chewing. These are the actual root causes of your asymmetry. Fix these first. Face exercises come second.</div>
+    <div class="ban b-w">At 20 your facial bones are still slightly malleable and your soft tissue responds very well to change. This is the best possible age to start. Results start showing in 4–8 weeks for soft tissue, 3–6 months for structural changes.</div>
+    <div class="sec">What's actually causing your asymmetry</div>
+    <div class="ig">
+      <div class="ic" style="border-color:#7a1830"><div class="il">Sleeping on one side</div><div class="iv" style="color:#fda4af">Compresses one side of your face for 7–8 hrs nightly. Over years = visible asymmetry, one eye smaller, one cheek flatter.</div></div>
+      <div class="ic" style="border-color:#7a1830"><div class="il">Mouth breathing</div><div class="iv" style="color:#fda4af">Drops tongue from palate → narrow palate → recessed chin → longer face → uneven jaw. Biggest single cause of facial structure issues.</div></div>
+      <div class="ic" style="border-color:#7a1830"><div class="il">Forward head posture</div><div class="iv" style="color:#fda4af">Every inch forward = 10 lbs extra stress on neck. Weakens jaw muscles, creates double chin, flattens mid-face, makes jaw recede.</div></div>
+      <div class="ic" style="border-color:#7a1830"><div class="il">Chewing one side only</div><div class="iv" style="color:#fda4af">One masseter muscle grows larger than the other → visible jaw asymmetry. One of the most common but least known causes.</div></div>
+    </div>
+    <div class="sec">What you can realistically change at 20</div>
+    <div class="ig">
+      <div class="ic" style="border-color:rgba(52,217,111,.4)"><div class="il">Skin quality</div><div class="iv" style="color:var(--gt)">Dramatic improvement in 4–8 weeks with a proper routine. Biggest bang for buck.</div></div>
+      <div class="ic" style="border-color:rgba(52,217,111,.4)"><div class="il">Jaw definition</div><div class="iv" style="color:var(--gt)">Mewing + mastic gum + chewing symmetry = visible jawline improvement in 3–6 months.</div></div>
+      <div class="ic" style="border-color:rgba(52,217,111,.4)"><div class="il">Eye symmetry</div><div class="iv" style="color:var(--gt)">Fixing sleep posture reduces under-eye puffiness asymmetry in 2–3 weeks.</div></div>
+      <div class="ic" style="border-color:rgba(52,217,111,.4)"><div class="il">Lip symmetry</div><div class="iv" style="color:var(--gt)">Lip exercises + hydration + sleep posture fix improves in 4–6 weeks.</div></div>
+      <div class="ic" style="border-color:rgba(52,217,111,.4)"><div class="il">Nose appearance</div><div class="iv" style="color:var(--gt)">Nose exercises + posture (less forward head = nose looks less wide from front) helps perception.</div></div>
+      <div class="ic" style="border-color:rgba(52,217,111,.4)"><div class="il">Overall face</div><div class="iv" style="color:var(--gt)">Gaining 10–15 kg from your bulk plan fills out your face dramatically — hollowed face is 40% of your asymmetry perception.</div></div>
+    </div>
+    <div class="sec">Priority order — do these first</div>
+    <div class="tl">
+      <div class="bl" style="border-left:2px solid var(--red)"><div class="dot" style="background:var(--red)"></div><div class="tm">Priority 1</div><div class="bc"><div class="bn">Switch to back sleeping tonight</div><div class="bsub">Most impactful single change. Place pillow on both sides to prevent rolling. Results in 2–3 weeks on eye + cheek symmetry.</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--red)"><div class="dot" style="background:var(--red)"></div><div class="tm">Priority 2</div><div class="bc"><div class="bn">Start mewing (tongue posture) immediately</div><div class="bsub">Tongue resting on roof of mouth, lips sealed, breathing through nose. This is foundational — everything else builds on it.</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--yellow)"><div class="dot" style="background:var(--yellow)"></div><div class="tm">Priority 3</div><div class="bc"><div class="bn">Start basic skincare routine</div><div class="bsub">Face wash → moisturiser → sunscreen. Skin quality improvement is fast and visible. See Skincare tab.</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--yellow)"><div class="dot" style="background:var(--yellow)"></div><div class="tm">Priority 4</div><div class="bc"><div class="bn">Fix posture — start today</div><div class="bsub">Chin tuck exercise 3×/day. Phone at eye level. Sit upright. See Habits tab.</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--green)"><div class="dot" style="background:var(--green)"></div><div class="tm">Priority 5</div><div class="bc"><div class="bn">Face exercises + jaw training</div><div class="bsub">Start week 2 once mewing + sleep posture is consistent. See Face exercises + Jaw tabs.</div></div></div>
+    </div>
+  </div>
+
+  <!-- AM ROUTINE -->
+  <div class="dp" id="looks-morning">
+    <div class="ban b-i">Morning routine — 12 minutes total · Do this every single day · Before breakfast</div>
+    <div class="tl">
+      <div class="bl" style="border-left:2px solid var(--primary)"><div class="dot" style="background:var(--primary)"></div><div class="tm">6:15 am · 1 min</div><div class="bc"><div class="bn">Wake up — back position check <span class="tag t-habit">Habit</span></div><div class="bsub">Notice which side you woke on. If on your side, note it — this is data. Goal: wake on your back.</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--green)"><div class="dot" style="background:var(--green)"></div><div class="tm">+1 min</div><div class="bc"><div class="bn">Joint circles + chin tucks <span class="tag t-habit">Posture</span></div><div class="bsub">10 neck rolls each direction · then 10 chin tucks (pull chin straight back, not down) · resets forward head posture from sleep</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--pink)"><div class="dot" style="background:var(--pink)"></div><div class="tm">+3 min</div><div class="bc"><div class="bn">Face wash <span class="tag t-skin">Skin</span></div><div class="bsub">Lukewarm water · gentle cleanser · 60 sec massage in circular motions · rinse with cold water at end (closes pores) · pat dry, don't rub</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--pink)"><div class="dot" style="background:var(--pink)"></div><div class="tm">+2 min</div><div class="bc"><div class="bn">Moisturiser <span class="tag t-skin">Skin</span></div><div class="bsub">Apply while skin still slightly damp · upward strokes only (downward causes sagging over time) · massage jawline in upward circular motions</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--pink)"><div class="dot" style="background:var(--pink)"></div><div class="tm">+1 min</div><div class="bc"><div class="bn">Sunscreen <span class="tag t-skin">Skin</span></div><div class="bsub">SPF 30–50 every single morning · even indoors · this is the single most anti-aging, skin-evening thing you can do · non-negotiable</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--primary)"><div class="dot" style="background:var(--primary)"></div><div class="tm">+2 min</div><div class="bc"><div class="bn">Face massage — gua sha or fingers <span class="tag t-face">Face</span></div><div class="bsub">Upward strokes from jaw to cheekbone · 5 strokes each side · reduces puffiness + improves blood flow + drains lymph nodes · huge for morning symmetry</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--blue)"><div class="dot" style="background:var(--blue)"></div><div class="tm">+1 min</div><div class="bc"><div class="bn">Lip balm + lip massage <span class="tag t-face">Lips</span></div><div class="bsub">Apply lip balm · then gently massage both lips in circular motion with fingertip · 30 sec · improves blood flow + symmetry over time</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--green)"><div class="dot" style="background:var(--green)"></div><div class="tm">All day</div><div class="bc"><div class="bn">Mewing — tongue on palate all day <span class="tag t-habit">Habit</span></div><div class="bsub">Entire tongue flat on roof of mouth · lips sealed · breathe through nose · this should become your resting state 24/7</div></div></div>
+    </div>
+  </div>
+
+  <!-- PM ROUTINE -->
+  <div class="dp" id="looks-night">
+    <div class="ban b-p">Night routine — 10 minutes · Most important routine of the day · Skin repairs itself during sleep</div>
+    <div class="tl">
+      <div class="bl" style="border-left:2px solid var(--pink)"><div class="dot" style="background:var(--pink)"></div><div class="tm">10:00 pm · 3 min</div><div class="bc"><div class="bn">Double cleanse <span class="tag t-skin">Skin</span></div><div class="bsub">First: wipe face with damp cloth to remove sunscreen + pollution · Second: face wash with gentle cleanser · removes everything properly · most people only do one wash and wonder why skin doesn't improve</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--pink)"><div class="dot" style="background:var(--pink)"></div><div class="tm">+1 min</div><div class="bc"><div class="bn">Niacinamide serum (if using) <span class="tag t-skin">Skin</span></div><div class="bsub">Apply on damp skin · 2–3 drops · targets dark spots, oily skin, pores, uneven tone · most effective ingredient for your concerns · see Skincare tab</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--pink)"><div class="dot" style="background:var(--pink)"></div><div class="tm">+1 min</div><div class="bc"><div class="bn">Night moisturiser <span class="tag t-skin">Skin</span></div><div class="bsub">Slightly thicker than AM moisturiser · skin absorbs 3× more at night · apply with upward motions · small amount extra on any dry or uneven areas</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--primary)"><div class="dot" style="background:var(--primary)"></div><div class="tm">+3 min</div><div class="bc"><div class="bn">Face exercises — full routine <span class="tag t-face">Face</span></div><div class="bsub">Do all 5 face exercises from the Face tab now · best done at night when relaxed · 3 min total · see Face exercises tab</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--blue)"><div class="dot" style="background:var(--blue)"></div><div class="tm">+1 min</div><div class="bc"><div class="bn">Lip care — thick balm <span class="tag t-face">Lips</span></div><div class="bsub">Apply generous lip balm before sleep · overnight is when lips heal + plump · Vaseline or any thick balm · wake up with smoother, more symmetric lips over time</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--green)"><div class="dot" style="background:var(--green)"></div><div class="tm">Before sleep</div><div class="bc"><div class="bn">Sleep position setup <span class="tag t-warn">Critical</span></div><div class="bsub">On your back · pillow on both sides to block rolling · or a travel pillow around your neck · this single habit has more impact on facial symmetry than anything else</div></div></div>
+      <div class="bl" style="border-left:2px solid var(--yellow)"><div class="dot" style="background:var(--yellow)"></div><div class="tm">Before sleep</div><div class="bc"><div class="bn">Drink 1 glass water <span class="tag t-skin">Skin</span></div><div class="bsub">Hydration overnight = plumper skin, less dark circles, more symmetrical face on waking · dehydration causes the "sunken" look that exaggerates asymmetry</div></div></div>
+    </div>
+  </div>
+
+  <!-- FACE EXERCISES -->
+  <div class="dp" id="looks-face">
+    <div class="ban b-i">5 face exercises · 3–5 min total · Do every night before sleep · These directly target your specific concerns</div>
+    <div class="ban b-w">Face exercises don't build muscle like gym does — they improve blood flow, lymphatic drainage, muscle tone balance, and symmetry between sides. Consistency over 6–8 weeks is when you'll notice results.</div>
+    <div class="ex-grid">
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-icon" style="background:var(--primary-dim)">👁️</div><div class="ex-name">Symmetrical eye exercise — fixes uneven eyes</div><div class="ex-badge"><span class="badge bd-time">45 sec</span><span class="badge bd-freq">Daily</span><span class="badge bd-impact">Eyes + brow symmetry</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>Step 1:</strong> Place index fingers gently under each eyebrow. Raise both brows equally while resisting with fingers. Hold 5 sec. Repeat 10 times.<br><br><strong>Step 2:</strong> Look straight into a mirror. Identify your weaker/lower eye. Gently lift that brow slightly more (with finger) while squinting that eye. Hold 3 sec. 5 reps. This trains the weaker side's frontalis muscle.<br><br><strong>Step 3:</strong> Wide eyes — open both eyes as wide as possible equally. Hold 10 sec. Relax. Repeat 5 times.<br><br><strong>Why it works:</strong> Uneven eyes are almost always from uneven frontalis (forehead) muscle tone — one side is overactive, one underactive. This balances them out.</div><div class="ex-tip">Tip: Do this in a mirror always — visual feedback is essential to train symmetry. Without a mirror you can't know if you're firing both sides equally.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-icon" style="background:var(--primary-dim)">👄</div><div class="ex-name">Lip symmetry exercise — fixes uneven lips</div><div class="ex-badge"><span class="badge bd-time">60 sec</span><span class="badge bd-freq">Daily</span><span class="badge bd-impact">Lip balance + fullness</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>Step 1 — Exaggerated smile:</strong> Smile as wide as possible, hold 5 sec, fully relax. Repeat 10 times. Watch in mirror — the side that lags = weaker orbicularis oris muscle.<br><br><strong>Step 2 — One-sided pucker:</strong> Pucker lips to the weaker side (the side that lags in smile). Hold 5 sec. 8 reps. This directly targets the undertrained side.<br><br><strong>Step 3 — Lip roll:</strong> Roll upper lip under (like tucking it), hold 5 sec. Then lower lip. 5 reps each. Evens upper/lower lip thickness.<br><br><strong>Step 4 — Whistle shape:</strong> Pucker lips in circle (like whistling), hold 10 sec. Relax. 5 reps. Trains circular lip muscle evenly.</div><div class="ex-tip">Tip: Your uneven lips are largely caused by sleeping on one side compressing one half. Fixing sleep posture + these exercises together works 3× faster than exercises alone.</div><div class="ex-warn">Don't overpull or stretch aggressively — lips have delicate skin. Gentle and controlled always.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-icon" style="background:var(--primary-dim)">🦷</div><div class="ex-name">Jawline sculpting — mew + resist</div><div class="ex-badge"><span class="badge bd-time">60 sec</span><span class="badge bd-freq">Daily</span><span class="badge bd-impact">Jaw definition + symmetry</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>Step 1 — Mewing hold:</strong> Tongue completely flat on roof of mouth (entire tongue, not just tip). Teeth lightly touching or slightly apart. Lips sealed. Hold 60 sec while breathing through nose. This is the foundation of everything.<br><br><strong>Step 2 — Jaw resist:</strong> Place fist under chin. Try to open mouth while resisting with fist. Hold 5 sec. 10 reps. Trains digastric and pterygoid muscles that define jawline.<br><br><strong>Step 3 — Neck flex:</strong> Look up to ceiling, push lower jaw forward (like jutting chin up). Hold 5 sec, feel stretch in neck and under jaw. 8 reps. Tones submental area (under chin).</div><div class="ex-tip">Tip: Mewing during the day even while studying, in class, walking — make it 24/7. The exercise sets above are just reinforcement. The habit is what actually changes structure.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-icon" style="background:var(--primary-dim)">👃</div><div class="ex-name">Nose perception exercise</div><div class="ex-badge"><span class="badge bd-time">30 sec</span><span class="badge bd-freq">Daily</span><span class="badge bd-impact">Nose appearance</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>Important reality check:</strong> Nose bone and cartilage cannot be changed without surgery. However — the perception of nose width and crookedness is heavily affected by: (1) posture (forward head = nose looks wider from front), (2) face fat distribution (gaining weight fills cheeks and makes nose look more proportional), (3) photo angle and light.<br><br><strong>What actually helps:</strong><br>— Fix forward head posture → nose looks narrower from front view<br>— Gain 10 kg from your bulk → cheeks fill out → nose appears more proportional<br>— Nose pinching exercise (pinch sides of nose, hold 5 sec, release) × 10 reps improves circulation + slight tip refinement over months<br><br><strong>Step 1:</strong> Using index finger and thumb, gently pinch nose at widest point. Hold 5 sec, release. 10 reps.<br><strong>Step 2:</strong> Flare nostrils outward, hold 3 sec, squeeze inward, hold 3 sec. 8 reps.</div><div class="ex-tip">Tip: Your weight gain from the bulk plan is the single biggest thing for nose proportionality. A hollow face at 55 kg makes any nose look larger. At 70 kg your face will be dramatically more balanced.</div></div></div>
+      <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-icon" style="background:var(--primary-dim)">😮</div><div class="ex-name">Cheek + midface symmetry</div><div class="ex-badge"><span class="badge bd-time">45 sec</span><span class="badge bd-freq">Daily</span><span class="badge bd-impact">Cheek balance + definition</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>Step 1 — Fish face:</strong> Suck cheeks in, hold 10 sec. Release. 8 reps. Tones zygomaticus major (cheek muscle).<br><br><strong>Step 2 — Cheek lift:</strong> Smile with closed mouth, place index fingers on cheekbones, push cheeks up toward eyes. Hold 10 sec. 8 reps. Directly lifts and tones mid-face.<br><br><strong>Step 3 — Air ball:</strong> Fill mouth with air, roll it from one cheek to the other (like you have a ball in your mouth). 20 sec. Equally tones both cheeks from inside — excellent for symmetry because both sides work equally.<br><br><strong>Step 4 — Identify weaker side:</strong> In mirror, puff one cheek at a time. The side that looks flatter/smaller = the side you sleep on. Give that side 2 extra reps of steps 1–3.</div><div class="ex-tip">Tip: The air ball exercise is the most effective for cheek symmetry because it's inherently bilateral — both cheeks work equally under equal pressure.</div></div></div>
+    </div>
+  </div>
+
+  <!-- JAW + LIPS -->
+  <div class="dp" id="looks-jaw">
+    <div class="ban b-p">Jaw definition and lip symmetry — the two most noticeable things at 20. These are also the two things most directly affected by your habits. Fix the habits first, then use these techniques.</div>
+    <div class="sec">Mewing — the foundation of everything</div>
+    <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-icon" style="background:var(--green-dim)">👅</div><div class="ex-name">Mewing — correct technique</div><div class="ex-badge"><span class="badge bd-freq">24/7 habit</span><span class="badge bd-impact">Jaw + palate + chin</span><span class="badge bd-diff">Most important</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>What it is:</strong> Resting your entire tongue on the roof of your mouth (palate) while lips are sealed and teeth lightly touching. This is the correct human resting oral posture — most people have lost this due to mouth breathing.<br><br><strong>Correct position:</strong><br>1. Close your lips gently<br>2. Touch all your teeth together lightly (or slightly apart)<br>3. Place the TIP of tongue just behind front teeth<br>4. Now push the ENTIRE body of tongue flat against the entire roof of mouth<br>5. Breathe through your nose<br><br><strong>What it changes at 20:</strong> Upward and forward pressure on palate → widens palate → more prominent cheekbones → better defined jaw → chin comes forward slightly · Takes 3–6 months for structural changes but jaw muscle tone improves in 4–6 weeks.<br><br><strong>Common mistake:</strong> Only placing tongue tip. The entire tongue body must press up — this is what creates the palatal pressure.</div><div class="ex-tip">Tip: Set a reminder every hour on your phone: "tongue up?" · Most people forget after 5 minutes at first. Within 3 weeks it becomes automatic.</div><div class="ex-warn">If you feel jaw pain from mewing — you're clenching. The contact should be gentle, not forced. Mewing is a resting position, not a flex.</div></div></div>
+    <div class="sec">Jaw training — definition + symmetry</div>
+    <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-icon" style="background:var(--green-dim)">🌿</div><div class="ex-name">Mastic gum chewing — jaw muscle development</div><div class="ex-badge"><span class="badge bd-time">20–30 min/day</span><span class="badge bd-freq">Daily</span><span class="badge bd-impact">Masseter + jawline</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>What it is:</strong> Mastic gum is a hard natural resin from Greece — much harder than regular gum. Chewing it is literally a workout for your masseter muscles (the ones that define your jaw).<br><br><strong>How to use:</strong> 1–2 pieces after lunch or dinner. Chew 20–30 minutes. <strong>Alternate sides every 5 minutes</strong> — this is critical for YOUR case since you currently chew only on one side.<br><br><strong>Cost:</strong> ~₹300–500 for a pack online (Amazon/Flipkart) — lasts 1–2 months. Worth every rupee.<br><br><strong>Result timeline:</strong> Masseter hypertrophy (jaw muscle growth) visible in 6–8 weeks of daily use. Symmetry improves because you're now consciously training both sides equally.</div><div class="ex-tip">Tip: If you can't afford mastic gum right now, sugar-free regular chewing gum (Orbit/Extra) is 20% as effective but still better than nothing. Alternate sides religiously.</div><div class="ex-warn">Don't overdo it — 30 min max/day. More isn't better. Jaw joint (TMJ) can get inflamed if you over-train it, especially with existing clicking joints.</div></div></div>
+    <div class="sec">Lip symmetry — specific techniques</div>
+    <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-icon" style="background:var(--pink-dim)">💋</div><div class="ex-name">Lip symmetry routine — full protocol</div><div class="ex-badge"><span class="badge bd-time">3 min</span><span class="badge bd-freq">AM + PM</span><span class="badge bd-impact">Lip balance + fullness</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>Morning (1 min):</strong><br>— Apply lip balm first<br>— With clean finger, gently massage lips in circular motion 30 sec<br>— Press lips together firmly, release. 10 reps. Stimulates both sides equally.<br><br><strong>Night (2 min):</strong><br>— Exfoliate lips: wet toothbrush, gently brush lips in circular motion 30 sec (removes dead skin, improves texture and perceived symmetry)<br>— Apply thick balm (Vaseline works great)<br>— Do lip exercises from Face tab<br>— Sleep on back so lips aren't compressed<br><br><strong>The castor oil trick (optional, ₹50):</strong> Apply 1 drop of castor oil to lips before sleep 3×/week. Proven to thicken lip appearance by improving blood flow and moisture retention. Especially helps the thinner side appear fuller.</div><div class="ex-tip">Tip: Your lips appear uneven partly because the compressed side (from side sleeping) is chronically slightly deflated and has less blood flow. Back sleeping + morning massage fixes this in 2–3 weeks.</div></div></div>
+    <div class="sec">Jawline — diet connection (your bulk plan helps directly)</div>
+    <div class="ig">
+      <div class="ic"><div class="il">Why your bulk helps jaw</div><div class="iv">Gaining weight fills subcutaneous fat in the right places — cheeks, temples, under-eye — making your jaw appear sharper by contrast</div></div>
+      <div class="ic"><div class="il">Reduce sodium</div><div class="iv">High sodium = face puffiness and water retention. Avoid excess salt in mess food — it blurs jaw definition</div></div>
+      <div class="ic"><div class="il">Hydration</div><div class="iv">3–4L water/day flushes sodium and reduces face bloating. Paradoxically — drinking more water = less water retention in face</div></div>
+      <div class="ic"><div class="il">Chewing hard foods</div><div class="iv">Raw carrots, apples, sugar cane — naturally works jaw muscles bilaterally. Add these to your diet when available.</div></div>
+    </div>
+  </div>
+
+  <!-- HABITS -->
+  <div class="dp" id="looks-habits">
+    <div class="ban b-r">Your 4 habits are actively working against your face every single day. Fixing these is worth more than any product or exercise. Think of them as "negative looksmaxxing" that you need to stop before positive looksmaxxing can work.</div>
+    <div class="sec">Habit 1 — Fix sleep position</div>
+    <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-icon" style="background:var(--primary-dim)">😴</div><div class="ex-name">Back sleeping protocol</div><div class="ex-badge"><span class="badge bd-freq">Every night</span><span class="badge bd-impact">Highest impact habit</span><span class="badge bd-diff">Takes 2–3 weeks to adjust</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>Why it matters:</strong> Side sleeping compresses one side of your face for 7–8 hours every night. Over months and years = flatter cheek on one side, smaller eye, compressed lip — all on the same side. This is likely causing most of your asymmetry.<br><br><strong>How to train yourself:</strong><br>1. Place your pillow in the centre of the bed, not to the side<br>2. Put a firm pillow on each side of your body — when you roll, you hit the pillow and often unconsciously roll back<br>3. Or use a travel neck pillow around your neck — physically prevents full side sleeping<br>4. Elevate head slightly (one extra pillow) — also reduces under-eye puffiness and dark circles significantly<br><br><strong>If you can't fully back sleep:</strong> Even reducing from full side sleep to a 45° tilt is 50% of the benefit. Progress over perfection.</div><div class="ex-tip">Tip: Takes most people 2–3 weeks to adjust. The first week you'll wake up on your side — that's normal. Stick with it. Results in eye + cheek symmetry within 3 weeks of consistent back sleeping.</div></div></div>
+    <div class="sec">Habit 2 — Stop mouth breathing</div>
+    <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-icon" style="background:var(--primary-dim)">👃</div><div class="ex-name">Nasal breathing training</div><div class="ex-badge"><span class="badge bd-freq">24/7 goal</span><span class="badge bd-impact">Face structure + jaw</span><span class="badge bd-diff">Most structurally impactful</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>Why it matters:</strong> Mouth breathing drops tongue from palate → palate narrows → teeth crowd → chin recedes → longer face → weaker jawline. Every chronic mouth breather's face shows the same pattern.<br><br><strong>Steps to fix:</strong><br>1. <strong>Check if nose is blocked:</strong> If you can't breathe through your nose comfortably, get a nasal saline rinse (₹100 at pharmacy) — use it daily until nasal passages are clear<br>2. <strong>Daytime:</strong> Commit to keeping lips sealed and breathing through nose while studying, walking, in class. Mewing + nasal breathing go together.<br>3. <strong>Nighttime:</strong> Mouth tape — apply a small piece of medical tape (3M Micropore tape, ₹50 at pharmacy) over your lips before sleep. Forces nasal breathing during sleep. Sounds extreme but is very effective and safe.<br>4. <strong>Exercise:</strong> Breathe through nose during walks. Increases CO2 tolerance which makes nasal breathing easier.</div><div class="ex-tip">Tip: Mouth tape is the single most underrated looksmaxxing technique. It fixes both the facial structure issue AND improves sleep quality (nasal breathing = better oxygenation = deeper sleep).</div><div class="ex-warn">If your nose is chronically blocked, see a doctor — you may have a deviated septum or chronic congestion that prevents nasal breathing physically. Fix the blockage first.</div></div></div>
+    <div class="sec">Habit 3 — Fix forward head posture</div>
+    <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-icon" style="background:var(--primary-dim)">🧍</div><div class="ex-name">Posture correction protocol</div><div class="ex-badge"><span class="badge bd-time">3×/day exercises</span><span class="badge bd-impact">Jawline + overall face</span><span class="badge bd-freq">Constant awareness</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>Why it matters for your face:</strong> Forward head posture causes: (1) double chin even at low body fat, (2) recessed jaw appearance, (3) nose looks wider from front, (4) overall face looks longer and less defined. Fixing posture alone dramatically improves how your face looks without changing anything on your face.<br><br><strong>The chin tuck exercise (3× daily, 1 min each):</strong><br>1. Sit or stand upright<br>2. Pull chin STRAIGHT BACK (like you're making a double chin on purpose)<br>3. Hold 5 seconds — you should feel stretch at the base of skull<br>4. Release. 10 reps.<br>Do this morning, afternoon, and before bed.<br><br><strong>Constant fixes:</strong><br>— Phone at eye level, not chest level<br>— Laptop screen raised (use books) to eye height<br>— When sitting in class: back of head touches imaginary wall<br>— Your gym pull exercises (rows, lat pulldowns, face pulls) also directly fix this</div><div class="ex-tip">Tip: Your gym plan already includes rows and face pulls which directly strengthen the muscles that pull your head back. Gym + chin tucks = fastest posture fix.</div></div></div>
+    <div class="sec">Habit 4 — Fix uneven chewing</div>
+    <div class="ex" onclick="TX(this)"><div class="ex-head"><div class="ex-icon" style="background:var(--primary-dim)">🍎</div><div class="ex-name">Bilateral chewing habit</div><div class="ex-badge"><span class="badge bd-freq">Every meal</span><span class="badge bd-impact">Jaw symmetry</span><span class="badge bd-diff">Easy once aware</span></div><div class="ex-toggle">▾</div></div><div class="ex-body"><div class="ex-detail"><strong>Why it matters:</strong> Your masseter muscle (the main jaw muscle) on the dominant chewing side is noticeably larger. This shows up as one side of your jaw looking bigger — visible jaw asymmetry.<br><br><strong>The fix:</strong><br>1. Every bite — consciously chew on BOTH sides<br>2. Start each meal chewing on your weaker side first<br>3. Count: 10 chews right side, 10 chews left side, swap — until it becomes automatic<br>4. With mastic gum: alternate every 5 minutes. Set a timer.<br><br><strong>Timeline:</strong> Masseter asymmetry takes 3–6 months to visibly reduce. But you'll notice jaw comfort improve much faster — within 2–3 weeks.</div><div class="ex-tip">Tip: This is the easiest of the 4 habits to fix because it only requires awareness at meal times — not 24/7. Start at your very next meal.</div></div></div>
+  </div>
+
+  <!-- SKINCARE -->
+  <div class="dp" id="looks-skin">
+    <div class="ban b-pk">Your skin concerns: acne, dark spots, oily skin. All three respond very well to a consistent basic routine. Budget-friendly Indian products that actually work.</div>
+    <div class="sec">Morning routine products</div>
+    <div class="prod"><div class="prod-top"><div class="prod-name">Gentle face wash</div><div style="display:flex;gap:6px"><div class="prod-price">₹100–150</div><div class="prod-use">AM + PM</div></div></div><div class="prod-desc"><strong>Best options:</strong> Cetaphil Gentle Cleanser · Minimalist Salicylic Acid Face Wash (2%) · Mamaearth Tea Tree Face Wash<br><br><strong>For your oily + acne skin:</strong> Minimalist Salicylic Acid 2% is ideal — salicylic acid unclogs pores, reduces acne, controls oil. Use twice daily. Don't use regular soap — strips skin, causes rebound oiliness and more acne.</div></div>
+    <div class="prod"><div class="prod-top"><div class="prod-name">Niacinamide serum 10%</div><div style="display:flex;gap:6px"><div class="prod-price">₹200–350</div><div class="prod-use">AM or PM</div></div></div><div class="prod-desc"><strong>Best options:</strong> Minimalist Niacinamide 10% + Zinc · The Ordinary Niacinamide<br><br><strong>What it does for you:</strong> Reduces oiliness · fades dark spots and acne marks · minimises pores · evens skin tone · reduces redness. This single product addresses all 3 of your concerns. Apply 2–3 drops on clean skin before moisturiser. Most impactful skincare ingredient for your situation.</div></div>
+    <div class="prod"><div class="prod-top"><div class="prod-name">Lightweight moisturiser</div><div style="display:flex;gap:6px"><div class="prod-price">₹150–250</div><div class="prod-use">AM + PM</div></div></div><div class="prod-desc"><strong>Best options:</strong> Neutrogena Hydro Boost (gel) · Minimalist Hyaluronic Acid moisturiser · Cetaphil Moisturising Lotion<br><br><strong>For oily skin:</strong> Gel-based moisturiser only — not cream. Oily skin still needs moisture — skipping moisturiser makes your skin produce MORE oil. Hyaluronic acid is key ingredient to look for.</div></div>
+    <div class="prod"><div class="prod-top"><div class="prod-name">Sunscreen SPF 50</div><div style="display:flex;gap:6px"><div class="prod-price">₹200–400</div><div class="prod-use">Every AM</div></div></div><div class="prod-desc"><strong>Best options:</strong> Re'equil Ultra Matte · Minimalist SPF 50 · Neutrogena Ultra Sheer<br><br><strong>Why non-negotiable:</strong> Sun exposure darkens acne marks by 10×. Without sunscreen, all your dark spot treatments are useless. SPF also prevents new spots, slows aging, and evens skin tone. Apply after moisturiser, 15 min before going outside. Re'equil Ultra Matte is ideal for oily skin — no white cast, not greasy.</div></div>
+    <div class="sec">Night-only products</div>
+    <div class="prod"><div class="prod-top"><div class="prod-name">Retinol 0.1–0.2% (week 5+)</div><div style="display:flex;gap:6px"><div class="prod-price">₹400–600</div><div class="prod-use">PM only · 3×/week</div></div></div><div class="prod-desc"><strong>Best options:</strong> Minimalist Retinol 0.2% · The Ordinary Retinol 0.2%<br><br><strong>Don't start immediately</strong> — let your skin adjust to cleanser + niacinamide + moisturiser for 4 weeks first. Then introduce retinol 2–3×/week at night. Retinol increases cell turnover, fades dark spots faster than anything else, refines skin texture. Start with 0.1–0.2% only. Always use sunscreen next morning when using retinol.</div></div>
+    <div class="prod"><div class="prod-top"><div class="prod-name">Lip balm — thick formula</div><div style="display:flex;gap:6px"><div class="prod-price">₹50–150</div><div class="prod-use">AM + PM + before sleep</div></div></div><div class="prod-desc"><strong>Best options:</strong> Vaseline Original · Himalaya Lip Balm · Lotus Herbals Lip Balm<br><br>Apply morning, before gym, and a thick layer before sleep. Hydrated lips look fuller and more symmetric. Dry lips emphasise unevenness because the drier side cracks and appears smaller.</div></div>
+    <div class="prod"><div class="prod-top"><div class="prod-name">Castor oil (optional)</div><div style="display:flex;gap:6px"><div class="prod-price">₹80–120</div><div class="prod-use">3× per week · PM only</div></div></div><div class="prod-desc"><strong>Use for:</strong> 1 drop on lips before sleep (plumping + symmetry) · 1 drop on eyebrows (thickens + shapes over months) · Thicker eyebrows frame the eyes and make asymmetry less noticeable. Pure cold-pressed castor oil only.</div></div>
+    <div class="sec">Acne-specific dos and don'ts</div>
+    <div class="ig">
+      <div class="ic" style="border-color:rgba(52,217,111,.4)"><div class="il">Do — change pillowcase</div><div class="iv">Every 2–3 days. Pillowcase accumulates oil + bacteria = direct transfer to face every night</div></div>
+      <div class="ic" style="border-color:rgba(52,217,111,.4)"><div class="il">Do — hands off face</div><div class="iv">Touching face transfers bacteria. Biggest acne trigger most people ignore.</div></div>
+      <div class="ic" style="border-color:rgba(52,217,111,.4)"><div class="il">Do — hydrate</div><div class="iv">3–4L water/day. Dehydrated skin = more oil production = more acne</div></div>
+      <div class="ic" style="border-color:#7a1830"><div class="il">Don't — pop pimples</div><div class="iv">Causes scarring and dark spots that take 6–12 months to fade. Popping = permanent marks.</div></div>
+      <div class="ic" style="border-color:#7a1830"><div class="il">Don't — skip moisturiser</div><div class="iv">Oily skin still needs hydration. Skipping causes rebound oil overproduction.</div></div>
+      <div class="ic" style="border-color:#7a1830"><div class="il">Don't — use harsh scrubs</div><div class="iv">Physical scrubs cause micro-tears on active acne, spreading bacteria and worsening breakouts</div></div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="dp" id="looks-timeline">
+    <div class="ban b-g">Realistic expectations — what changes when. No false promises, no surgery. Everything here is achievable with consistency.</div>
+    <div class="sec">Month by month results</div>
+    <div class="prog-steps">
+      <div class="ps"><div class="ps-line"><div class="ps-dot" style="background:var(--red);color:var(--red)"></div><div class="ps-track" style="background:var(--border)"></div></div><div class="ps-body"><div class="ps-week">Week 1–2</div><div class="ps-title">Skin improvement begins · Sleep posture adjusting</div><div class="ps-desc">Skin starts looking cleaner and less oily after 5–7 days of consistent routine · Under-eye puffiness reduces as you shift to back sleeping · Lips appear more balanced as compression from side sleeping reduces · Posture awareness improves — you catch yourself slouching and correct it</div></div></div>
+      <div class="ps"><div class="ps-line"><div class="ps-dot" style="background:var(--yellow)"></div><div class="ps-track" style="background:var(--border)"></div></div><div class="ps-body"><div class="ps-week">Week 3–4</div><div class="ps-title">Visible skin change · Eye symmetry improving</div><div class="ps-desc">Acne begins to reduce with salicylic acid cleanser · Skin tone more even from niacinamide · Eye symmetry noticeably better as sleep posture consistently improves · Mewing becoming more natural — jaw muscles adapting · Posture improving — forward head reducing</div></div></div>
+      <div class="ps"><div class="ps-line"><div class="ps-dot" style="background:var(--yellow)"></div><div class="ps-track" style="background:var(--border)"></div></div><div class="ps-body"><div class="ps-week">Month 2</div><div class="ps-title">Dark spots fading · Jaw muscle tone improving</div><div class="ps-desc">Old acne marks starting to fade with niacinamide + sunscreen · Jaw muscles more toned and symmetric from mastic gum + bilateral chewing · Lip exercises showing results — both sides more balanced · If adding retinol: skin texture improving dramatically · Gym gains starting to fill out face</div></div></div>
+      <div class="ps"><div class="ps-line"><div class="ps-dot" style="background:var(--green)"></div><div class="ps-track" style="background:var(--border)"></div></div><div class="ps-body"><div class="ps-week">Month 3–4</div><div class="ps-title">Structural changes begin · Overall face more balanced</div><div class="ps-desc">Jawline more defined from mewing + jaw training + early weight gain · Cheekbones more visible as face gains weight from bulk · Skin significantly clearer — most acne marks faded · Forward head posture nearly corrected — face appears sharper · Friends start noticing</div></div></div>
+      <div class="ps"><div class="ps-line"><div class="ps-dot" style="background:var(--green)"></div><div class="ps-track" style="background:var(--border)"></div></div><div class="ps-body"><div class="ps-week">Month 5–6</div><div class="ps-title">Significant overall transformation</div><div class="ps-desc">5–7 kg weight gained from bulk → face fills out → asymmetry perception dramatically reduced → nose appears more proportional · Jaw definition clearly visible · Skin is clear and even-toned · Sleep posture fully adjusted · Mewing automatic · Posture corrected — new baseline</div></div></div>
+      <div class="ps"><div class="ps-line"><div class="ps-dot" style="background:var(--primary)"></div><div class="ps-track" style="background:transparent"></div></div><div class="ps-body"><div class="ps-week">Month 9–12</div><div class="ps-title">Maximum natural results</div><div class="ps-desc">10+ kg gained → complete facial transformation from weight alone · Jaw symmetric and defined · Skin clear · All 4 bad habits broken and replaced · At this point you've achieved the maximum natural improvement possible at 20 without any procedures</div></div></div>
+    </div>
+    <div class="sec">Realistic limits — be honest with yourself</div>
+    <div class="ig">
+      <div class="ic" style="border-color:rgba(52,217,111,.4)"><div class="il">Will change significantly</div><div class="iv">Skin quality · jawline definition · overall face balance · eye puffiness · lip appearance · posture</div></div>
+      <div class="ic" style="border-color:rgba(52,217,111,.4)"><div class="il">Will improve noticeably</div><div class="iv">Eye symmetry · cheek symmetry · nose proportion (via weight gain + posture) · dark spots</div></div>
+      <div class="ic" style="border-color:rgba(245,197,66,.4)"><div class="il">Will improve partially</div><div class="iv">Lip symmetry (soft tissue) · jaw size asymmetry · eyebrow asymmetry</div></div>
+      <div class="ic" style="border-color:#7a1830"><div class="il">Cannot change naturally</div><div class="iv">Nose bone/cartilage shape · skeletal bone asymmetry · these require procedures if desired</div></div>
+    </div>
+    <div class="sec">The biggest cheat code — your bulk plan</div>
+    <div class="ban b-o">At 55 kg and 184 cm your face is hollow. A hollow face makes every feature appear asymmetric because there's no volume to balance things out. Gaining 10–15 kg from your bulk plan will do more for your facial appearance than any product or exercise. Cheeks fill out → asymmetry is hidden. Temples fill → eyes look more even. Jaw gets covered in healthy tissue → appears more defined. This is not optional — it's the foundation of your looksmaxxing.</div>
+    <div class="sec">Total cost breakdown</div>
+    <div class="ig">
+      <div class="ic"><div class="il">Face wash (Minimalist SA)</div><div class="iv">~₹150 · lasts 2–3 months</div></div>
+      <div class="ic"><div class="il">Niacinamide serum</div><div class="iv">~₹300 · lasts 3 months</div></div>
+      <div class="ic"><div class="il">Moisturiser</div><div class="iv">~₹200 · lasts 2 months</div></div>
+      <div class="ic"><div class="il">Sunscreen</div><div class="iv">~₹350 · lasts 2 months</div></div>
+      <div class="ic"><div class="il">Lip balm</div><div class="iv">~₹80 · lasts 2 months</div></div>
+      <div class="ic"><div class="il">Mastic gum</div><div class="iv">~₹400 · lasts 2 months</div></div>
+      <div class="ic"><div class="il">Mouth tape (3M)</div><div class="iv">~₹100 · lasts 3 months</div></div>
+      <div class="ic"><div class="il">Castor oil (optional)</div><div class="iv">~₹100 · lasts 4+ months</div></div>
+      <div class="ic" style="border-color:rgba(52,217,111,.4)"><div class="il">Total per month</div><div class="iv" style="color:var(--green)">~₹400–600/month · less than ₹20/day</div></div>
+    </div>
+  </div>
+</div><!-- /plan-looks -->
+
+</div><!-- /shell -->
+
+<script>
+// ── Plan switcher ──
+function switchPlan(id, btn) {
+  document.querySelectorAll('.plan-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.plan-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('plan-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── Tab switcher (namespaced per plan) ──
+function ST(plan, id, el) {
+  const panel = document.getElementById('plan-' + plan);
+  panel.querySelectorAll('.dp').forEach(d => d.classList.remove('active'));
+  panel.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(plan + '-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── Exercise expand/collapse ──
+function TX(el) {
+  const body = el.querySelector('.ex-body');
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  el.classList.toggle('open', !isOpen);
+}
+</script>
+</body>
+</html>
